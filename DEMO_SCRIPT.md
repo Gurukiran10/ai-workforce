@@ -1,47 +1,51 @@
-# Demo video script (about 4 minutes)
+# Demo video: click-by-click script (target 3:30–4:00)
 
-**Setup before recording:**
-- Terminal 1: `python -m sandbox`
-- Browser tab A: `http://localhost:8000/runs`
-- Terminal 2: ready to run the commands below
-- Use OBS or the Windows Game Bar (Win+G) to record the screen plus your voice.
+## Before you record (10 minutes)
+1. Close everything else. Turn on Do Not Disturb.
+2. Terminal: `cd C:\Users\ankit\projects\centralign-agent` → `.venv\Scripts\activate` → `python -m sandbox`
+3. Chrome: open `http://localhost:8000/runs` and make the window full screen (F11). Zoom to 90% if it feels crowded.
+4. Recorder: **Clipchamp** (built into Windows), *Record* → *Screen and camera* (camera optional). Or use Xbox Game Bar: Win+Alt+R starts and stops.
+5. Do one practice run first. Runs take 1–3 minutes, so **speed up the waiting parts** later in Clipchamp (select clip → Speed → 4×).
 
-## 0:00–0:25 · Problem and what I built
-"Company work is spread across inboxes, ERPs and portals. I built Acme Worker, an AI employee that takes a short request and finishes the work by operating the company's web apps itself. It follows company SOPs, asks a human when it should, and only says 'done' after an independent verifier re-checks the systems. Everything runs against a sandboxed fake company, Acme Logistics, so no real credentials are involved."
+## Scene 1 (0:00–0:25): the hook. Show the Workforce page.
+> "Everyone can build an agent that clicks buttons. I built AI employees for a pretend company, Acme Logistics. You hire one by writing a role file: what it's responsible for, which systems it may touch, which rules it follows and when it must ask a human. It does real work in real web apps, and it only says done after an independent check."
 
-Show the sandbox quickly: AcmeMail inbox, Ledgerly bills, HireHub applicants, TalentDesk.
+Hover the **Diya** and **Kabir** cards, then the **"How your workforce is governed"** panel.
 
-## 0:25–0:50 · Architecture
-Show the README diagram. "It's one loop: understand from company memory, plan with checkable success criteria, act through generic browser tools, observe HTTP results, adapt. A deterministic policy gate and a duplicate-action ledger sit outside the LLM. A separate read-only verifier checks the outcome. Task knowledge lives in markdown SOPs, not in code."
+## Scene 2 (0:25–0:50): open Diya's profile (click her card)
+> "Diya is the accounts payable employee. These are her responsibilities and the only systems she can open, enforced in code. These are the business rules: bills over one lakh need the Finance Manager, over five lakh the CFO, and she can never delete records. And this is her trust ladder: autonomy is earned from verified work. Right now it recommends Supervised, because one of her earlier runs failed verification. The system is honest about its own track record."
 
-## 0:50–2:00 · Main run: invoice with a server error and an approval
-```bash
-python -m worker run "Find the latest invoice from Globex, extract the amount and due date, enter it into our accounts system, and tell me once it is done." --chaos flaky_submit,over_threshold --human web --headed
-```
-Open the printed `/runs/<id>` link. Narrate these moments:
-- It searches the SOPs and writes a plan with exact success criteria.
-- It downloads and reads the PDF and records facts with their sources.
-- The policy gate pauses for approval: "₹1,85,000 is above the ₹1,00,000 limit." Click **Approve** in the viewer.
-- The ERP returns a **500 error**. The agent sees it, checks the bills list, and only then retries.
-- The verifier opens a fresh browser, confirms exactly one bill, and the result is **VERIFIED**.
-- Open the **evidence report**.
+## Scene 3 (0:50–2:10): the brief's task, live, with chaos and approval
+1. Click **Workforce** → **Assign work** → pick **Diya** → click the **"Globex invoice into the ERP"** preset.
+2. Open **Stress test** and turn on **Server error on save** and **Over approval limit**. Keep *Show the browser* on.
+3. Click **Assign to Diya**. The run page opens.
 
-## 2:00–2:30 · Silent failure caught by verification
-```bash
-python -m worker run "<same invoice task>" --chaos silent_drop
-```
-"The ERP says 'Saved!' but drops the record. The worker believes it's done; the verifier finds no bill and sends it back. It re-enters the bill, and verification passes." (You can show this from an eval run report if you prefer.)
+> "This is the exact task from the brief. I've also injected a server error and made the invoice ₹1.85 lakh."
 
-## 2:30–3:15 · Same code, different job: recruiting
-```bash
-python -m worker run "Screen the new applicants for the Backend Engineer role against the job description, record each of them in TalentDesk with the right stage, and book a screening call for the strongest candidate in the first free Thursday slot." --reset --headed
-```
-"No code changed; it read the JD and the screening SOP." Show the ATS: shortlisted and rejected candidates, Arjun set to **Needs Info** because his CTC is missing, and Priya booked on Thursday.
-Optionally run `python -m pytest -q` to show the test that fails if task-specific code enters `worker/`.
+While it runs, point at:
+- **the loop stepper** (Understand → Plan → Execute…): "it read the SOP first, then planned with exact success criteria."
+- **"What the agent sees"**: "a real browser: inbox, PDF download, ERP form."
+- **The approval card appears**: "the permission layer, not the model, stopped it. Over one lakh needs the Finance Manager." Type a note "Approved – Finance" → **Approve and continue**.
+- **Activity shows a server error**: "the save failed with a 500. It doesn't retry blindly: it checks the bills list first so it never creates a duplicate, then retries."
+- **The verifier step**: "now a *different* AI model, in a separate read-only browser, re-downloads the original PDF and checks every value."
+- **The receipt**: "verified complete, with evidence for each criterion. One approval, about ten rupees of model cost."
 
-## 3:15–3:40 · Safety
-Show the F9 (prompt injection) report: the malicious email was ignored and flagged. Show H1: the bank-change request came from a look-alike domain and was refused.
+## Scene 4 (2:10–2:40): the same code, a different job
+Go to **Workforce** → **Recent work** → open the **Kabir** screening run (*"Screen the new applicants…"*), then open **TalentDesk** from *Systems*.
+> "Same runtime, different role file. Kabir screened six applicants against the job description: two shortlisted, three rejected with reasons, and one marked Needs Info because his salary expectation was missing. It booked the strongest candidate on Thursday. That's what CentrAlign's Raj does."
 
-## 3:40–4:10 · Results and next steps
-Open `evals/results/<latest>.md`: pass rate, **false-success rate**, cost and time per run.
-"Next I'd add API and MCP connectors, a job queue with sandboxed browsers, learning from human corrections, and desktop computer use. Limitations are listed in the README."
+## Scene 5 (2:40–3:15): it learns your rules
+Show the README section **"It learns your company's rules"** (the table), or the **Inbox** if a proposal is pending.
+> "When the invoice had no due date, Diya asked me once. I said Globex is always invoice date plus fifteen days. She proposed that as a company rule, and I approved it in the Inbox. Next time she didn't ask at all: twenty-six percent fewer steps and forty-three percent cheaper. She only learns what a human approves, so a malicious email can't rewrite company rules."
+
+## Scene 6 (3:15–3:50): proof and honesty
+Open `README.md` on GitHub → the **Evaluation** section.
+> "Twenty-two scenarios, scored against the sandbox's real database, including five held-out tasks I wrote before running anything. The number I care about most is false successes: when it says done but isn't. My first full run scored ten out of fourteen and exposed real bugs. They're documented here with how I fixed them."
+
+## Scene 7 (3:50–4:00): close
+> "Next: Raj-style WhatsApp checks with candidates, always-on employees watching the inbox, and compiling verified runs into reusable skills. Thanks for watching."
+
+## After recording
+1. In Clipchamp, cut the mistakes and speed up the waiting (4×). Export at 1080p.
+2. Upload to YouTube as **Unlisted** (or Google Drive with "Anyone with the link").
+3. Paste the link at the top of README.md (replace `_add link_`), commit and push.
