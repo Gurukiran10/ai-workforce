@@ -1,7 +1,8 @@
 # Acme Workforce: AI employees that do the work, check in when a decision is yours, and prove the result
 
 [![CI](https://github.com/Gurukiran10/ai-workforce/actions/workflows/ci.yml/badge.svg)](https://github.com/Gurukiran10/ai-workforce/actions/workflows/ci.yml)
-**[▶ Watch the demo video](docs/video/acme-workforce-demo.mp4)** · **[Clickable showcase](https://gurukiran10.github.io/ai-workforce/)** · **[Open a real evidence report](runs/sample-invoice-over-limit-approval/report.html)**
+**[▶ Watch the demo video](https://gurukiran10.github.io/ai-workforce/#video)** · **[Clickable showcase](https://gurukiran10.github.io/ai-workforce/)** · **[Open a real evidence report](https://gurukiran10.github.io/ai-workforce/runs/sample-invoice-over-limit-approval/report.html)**
+*(Hosted by GitHub Pages. The raw files are in the repo too: [video](docs/video/acme-workforce-demo.mp4) · [report source](runs/sample-invoice-over-limit-approval/report.html).)*
 
 *Submission for the CentrAlign AI Engineering Intern problem, "Autonomous AI Task Worker".*
 
@@ -23,7 +24,7 @@ You hire an AI employee by writing a **role file**: its responsibilities, the sy
 | **Learning loop** (same invoice, before vs after one human-approved rule) | questions **1 → 0**, steps **27 → 20**, cost **$0.18 → $0.10** |
 | **Engineering** | 81 unit tests (incl. 29 on the safety gate) · CI · 22 scored scenarios · total eval spend $5.21 |
 
-> **Demo video:** [`docs/video/acme-workforce-demo.mp4`](docs/video/acme-workforce-demo.mp4) (3:39, real live run) · **Example evidence:** [`runs/sample-*/report.html`](runs/) · **Run without any API key:** see [Browse the sample runs](#browse-the-sample-runs-no-api-key-needed)
+> **Demo video:** [3:39, a real live run](https://gurukiran10.github.io/ai-workforce/#video) · **Example evidence:** [invoice](https://gurukiran10.github.io/ai-workforce/runs/sample-invoice-over-limit-approval/report.html) · [ERP lies, verifier catches it](https://gurukiran10.github.io/ai-workforce/runs/sample-silent-drop-caught-by-verifier/report.html) · [recruiting](https://gurukiran10.github.io/ai-workforce/runs/sample-recruiting-screening/report.html) · **Run without any API key:** see [Browse the sample runs](#browse-the-sample-runs-no-api-key-needed)
 
 ![Live run page: plan, independent verification and receipt](docs/screenshots/run-invoice-approval.png)
 
