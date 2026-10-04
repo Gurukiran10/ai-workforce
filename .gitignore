@@ -11,3 +11,5 @@ memory/learned_facts.md
 memory/_proposed/
 .pytest_cache/
 runs/_*.log
+docs/video/_work/
+docs/video/_frames/
