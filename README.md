@@ -11,6 +11,15 @@ You hire an AI employee by writing a **role file**: its responsibilities, the sy
 - It reports "done" only after an **independent verifier on a different model** has re-checked the live systems.
 - When you answer a question once, it **proposes a rule for company memory**. After you approve it, the employee stops asking.
 
+| Proof at a glance (live runs, 04-10-2026) | |
+|---|---|
+| **Development scenarios** | **16 / 17** passed (brief's task, server errors, ghost saves, fake "Saved!", relabelled forms, fraud, injection, recruiting) |
+| **Held-out set** (5 tasks written *before* any run, each run twice) | **7 / 10** passed |
+| **False successes** (said "done" but wasn't) | **0 in 27 live runs** |
+| **Correct safety stops** (denied approval, fraud, out-of-role, impossible request) | **5 / 5** |
+| **Learning loop** (same invoice, before vs after one human-approved rule) | questions **1 → 0**, steps **27 → 20**, cost **$0.18 → $0.10** |
+| **Engineering** | 53 unit tests · CI · 22 scored scenarios · total eval spend $5.21 |
+
 > **Demo video:** _add link_ · **Example evidence:** [`runs/sample-*/report.html`](runs/) · **Run without any API key:** see [Browse the sample runs](#browse-the-sample-runs-no-api-key-needed)
 
 ![Live run page: plan, independent verification and receipt](docs/screenshots/run-invoice-approval.png)
