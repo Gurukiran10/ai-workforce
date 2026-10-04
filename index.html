@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acme Workforce · AI employees with proof</title>
+<meta name="description" content="AI employees that do real work in company systems, check in when a decision is yours, and prove the result. CentrAlign AI intern take-home.">
+<style>
+  :root{--bg:#0b0f17;--s:#121826;--s2:#0f1520;--b:#1f2937;--t:#f2f4f7;--t2:#d0d5dd;--m:#8b95a7;--a:#7c74ff;--ok:#6ce9a6;--warn:#fec84b}
+  *{box-sizing:border-box}html{scroll-behavior:smooth}
+  html{background:var(--bg)}
+  body{margin:0;background:radial-gradient(1100px 520px at 15% -5%,#1e1b4b 0%,transparent 62%) no-repeat;color:var(--t);font:16px/1.6 Inter,"Segoe UI",system-ui,sans-serif}
+  a{color:#a5b4fc;text-decoration:none}a:hover{text-decoration:underline}
+  .w{max-width:1120px;margin:0 auto;padding:0 24px}
+  nav{display:flex;align-items:center;gap:22px;padding:18px 0;font-size:14px;flex-wrap:wrap}
+  nav b{font-size:16px;margin-right:auto;display:flex;align-items:center;gap:10px}
+  .logo{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:700;background:linear-gradient(135deg,#7c74ff,#7a5af8)}
+  nav a{color:var(--t2)}
+  .hero{padding:56px 0 30px}
+  .k{color:#a5b4fc;font-weight:600;font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+  h1{font-size:clamp(34px,5.4vw,58px);line-height:1.06;letter-spacing:-.025em;margin:14px 0 18px}
+  .lead{font-size:20px;color:var(--t2);max-width:760px}
+  .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:11px;font-weight:600;border:1px solid var(--b);color:var(--t);background:var(--s)}
+  .btn.p{background:var(--a);border-color:var(--a);color:#fff}.btn:hover{text-decoration:none;filter:brightness(1.1)}
+  section{padding:34px 0}
+  h2{font-size:30px;letter-spacing:-.02em;margin:0 0 6px}.sub{color:var(--m);margin:0 0 22px}
+  video{width:100%;border-radius:16px;border:1px solid var(--b);background:#000;box-shadow:0 20px 50px rgba(0,0,0,.45)}
+  .grid{display:grid;gap:16px}.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}
+  .card{background:var(--s);border:1px solid var(--b);border-radius:16px;padding:20px 22px}
+  .stat b{display:block;font-size:40px;letter-spacing:-.02em;line-height:1.1}.stat span{color:var(--m);font-size:14px}.ok{color:var(--ok)}
+  table{width:100%;border-collapse:collapse;font-size:15px}td,th{padding:11px 12px;border-bottom:1px solid var(--b);text-align:left}th{color:var(--m);font-weight:500;font-size:13px}
+  .emp{display:flex;gap:14px;align-items:flex-start}.av{flex:none;width:48px;height:48px;border-radius:13px;display:grid;place-items:center;font-weight:700;font-size:20px}
+  .emp h3{margin:0}.emp p{margin:4px 0 0;color:var(--m);font-size:14px}
+  ul.t{margin:10px 0 0;padding-left:18px;color:var(--t2);font-size:14.5px}
+  .shots a{display:block;border:1px solid var(--b);border-radius:14px;overflow:hidden;background:var(--s)}
+  .shots img{display:block;width:100%;height:230px;object-fit:cover;object-position:top}
+  .shots span{display:block;padding:10px 14px;font-size:14px;color:var(--t2)}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;background:#0b2a1d;color:var(--ok)}
+  footer{padding:40px 0 60px;color:var(--m);font-size:14px;border-top:1px solid var(--b);margin-top:30px}
+  @media(max-width:860px){.g4{grid-template-columns:repeat(2,1fr)}.g3,.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="w">
+  <nav><b><span class="logo">A</span>Acme Workforce</b><a href="#video">Demo</a><a href="#proof">Proof</a><a href="#employees">Employees</a><a href="#evidence">Evidence</a>
+    <a href="https://github.com/Gurukiran10/ai-workforce">GitHub</a></nav>
+
+  <header class="hero">
+    <div class="k">CentrAlign AI · Engineering Intern take-home</div>
+    <h1>AI employees that do the work, check in when a decision is yours, and prove the result.</h1>
+    <p class="lead">You hire one by writing a role file: what it's responsible for, which systems it may use, the rules it follows and who it escalates to. The same runtime then works in real company web apps through a real browser, and only says <i>done</i> after an independent verifier on a different model has re-checked the live systems.</p>
+    <div class="cta"><a class="btn p" href="#video">▶ Watch the demo</a><a class="btn" href="https://github.com/Gurukiran10/ai-workforce#readme">Read the README</a><a class="btn" href="runs/sample-invoice-over-limit-approval/report.html">Open a real evidence report</a></div>
+  </header>
+
+  <section id="video">
+    <h2>Demo: a real run, start to finish</h2>
+    <p class="sub">The brief's task, with a server error and an over-limit amount injected live. Approval gate, recovery, independent verification, then the same runtime doing recruiting.</p>
+    <video controls preload="metadata" poster="docs/screenshots/run-invoice-approval.png"><source src="docs/video/acme-workforce-demo.mp4" type="video/mp4">Your browser can't play the video. <a href="docs/video/acme-workforce-demo.mp4">Download it</a>.</video>
+  </section>
+
+  <section id="proof">
+    <h2>Proof</h2>
+    <p class="sub">Live runs on 04-10-2026, scored against the sandbox's real database, which the employee never sees.</p>
+    <div class="grid g4">
+      <div class="card stat"><b>16/17</b><span>development scenarios passed</span></div>
+      <div class="card stat"><b>7/10</b><span>held-out runs passed<br>(5 tasks frozen before any run)</span></div>
+      <div class="card stat"><b class="ok">0</b><span>false successes in 27 live runs<br>(said "done", wasn't)</span></div>
+      <div class="card stat"><b>5/5</b><span>correct safety stops: denied approval, fraud, out-of-role, impossible request</span></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <b>It learns your company's rules, with a human in the loop</b>
+      <table style="margin-top:10px"><tr><th>Same invoice, no due date</th><th>Questions to a human</th><th>Steps</th><th>Cost</th><th>Verified</th></tr>
+      <tr><td>Run 1: before learning</td><td>1</td><td>27</td><td>$0.180</td><td class="ok">yes</td></tr>
+      <tr><td>Run 2: after one human-approved rule</td><td class="ok">0</td><td class="ok">20</td><td class="ok">$0.103</td><td class="ok">yes</td></tr></table>
+    </div>
+    <p class="sub" style="margin-top:14px">Honest history: the first full run scored 10/14 and exposed real bugs; every miss since has been a <i>safe</i> miss. Details and every failure are in the <a href="https://github.com/Gurukiran10/ai-workforce#evaluation">README</a>.</p>
+  </section>
+
+  <section id="employees">
+    <h2>Two AI employees, one runtime</h2>
+    <p class="sub">Permissions, approval limits and data boundaries are enforced in code, outside the model.</p>
+    <div class="grid g2">
+      <div class="card"><div class="emp"><div class="av" style="background:linear-gradient(135deg,#a855f7,#7c3aed)">D</div><div><h3>Diya · Accounts Payable Associate</h3><p>Reports to Meera Rao (Finance Manager)</p></div></div>
+        <ul class="t"><li>May use: mail and the ERP only (anything else is refused in code)</li><li>Bills over ₹1,00,000 need the Finance Manager; over ₹5,00,000 the CFO</li><li>Any vendor bank-detail change needs approval; never deletes records</li><li>Her autonomy level (trust ladder) comes from her verified track record</li></ul></div>
+      <div class="card"><div class="emp"><div class="av" style="background:linear-gradient(135deg,#2dd4bf,#0d9488)">K</div><div><h3>Kabir · Recruiting Coordinator</h3><p>Reports to Vikram Desai (Hiring Manager)</p></div></div>
+        <ul class="t"><li>May use: mail, the job portal and the ATS</li><li>Screens applicants against the job description; records stages with reasons</li><li>Marks "Needs Info" instead of guessing missing data</li><li>Asked to do accounts work, he refuses and names the right colleague</li></ul></div>
+    </div>
+  </section>
+
+  <section id="evidence">
+    <h2>Evidence you can open</h2>
+    <p class="sub">Real reports from live runs: summary, independent verdicts, approvals, facts with sources, the action ledger, screenshots and timeline.</p>
+    <div class="grid g3 shots">
+      <a href="runs/sample-invoice-over-limit-approval/report.html"><img src="docs/screenshots/evidence-report.png" alt=""><span><b>Invoice over the limit</b><br>approval gate → verified <span class="pill">VERIFIED</span></span></a>
+      <a href="runs/sample-silent-drop-caught-by-verifier/report.html"><img src="docs/screenshots/run-silent-drop-verifier.png" alt=""><span><b>ERP lies ("Saved!")</b><br>verifier catches and repairs <span class="pill">VERIFIED</span></span></a>
+      <a href="runs/sample-recruiting-screening/report.html"><img src="docs/screenshots/run-recruiting.png" alt=""><span><b>Recruiting: 6 applicants</b><br>same code, different role <span class="pill">VERIFIED</span></span></a>
+    </div>
+    <div class="grid g3 shots" style="margin-top:16px">
+      <a href="docs/screenshots/console.png"><img src="docs/screenshots/console.png" alt=""><span><b>Workforce console</b><br>roster, assign work, governance</span></a>
+      <a href="docs/screenshots/inbox.png"><img src="docs/screenshots/inbox.png" alt=""><span><b>Inbox</b><br>approvals, questions, rules to learn</span></a>
+      <a href="docs/screenshots/employee.png"><img src="docs/screenshots/employee.png" alt=""><span><b>Employee profile</b><br>role, trust ladder, rules, history</span></a>
+    </div>
+  </section>
+
+  <footer>
+    Built for the CentrAlign AI Engineering Intern problem, "Autonomous AI Task Worker". Everything runs against a made-up company: no real systems, credentials or personal data.
+    <br><a href="https://github.com/Gurukiran10/ai-workforce">Source code</a> · <a href="https://github.com/Gurukiran10/ai-workforce#quickstart">Run it yourself</a> · <a href="evals/results/">Eval results</a>
+  </footer>
+</div>
+</body>
+</html>

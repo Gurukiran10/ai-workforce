@@ -111,3 +111,18 @@ def test_verifier_llm_uses_independent_model_and_falls_back(monkeypatch):
 def test_first_message_labels_worker_facts_as_hints():
     msg = verifier.build_first_message("do X", ["X done"], "k: v", [{"claim": "did X"}])
     assert "UNVERIFIED HINTS" in msg and "ORIGINAL source" in msg and 'source "sop"' in msg
+
+
+def test_audit_facts_separates_gate_approvals_from_advisory_ones():
+    from worker.verifier import audit_facts
+    events = [
+        {"kind": "approval", "status": "requested", "request": {"action": "Save", "policy_rule": "high_value_amount"}},
+        {"kind": "approval", "status": "approved", "note": "ok", "fingerprint": "abc123"},       # from the permission gate
+        {"kind": "approval", "status": "approved", "note": "sure"},                              # free-text request_approval
+        {"kind": "human", "type": "answer", "answer": "15 days after invoice date"},
+    ]
+    text = audit_facts(events)
+    assert "gate approval (bound to the exact action) approved (note: ok)" in text
+    assert "ADVISORY approval (not bound to any action) approved (note: sure)" in text
+    assert "human answered a question: 15 days after invoice date" in text
+    assert audit_facts([]).startswith("(no human approvals")

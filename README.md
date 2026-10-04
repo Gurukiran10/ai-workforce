@@ -1,5 +1,8 @@
 # Acme Workforce: AI employees that do the work, check in when a decision is yours, and prove the result
 
+[![CI](https://github.com/Gurukiran10/ai-workforce/actions/workflows/ci.yml/badge.svg)](https://github.com/Gurukiran10/ai-workforce/actions/workflows/ci.yml)
+**[▶ Watch the demo video](docs/video/acme-workforce-demo.mp4)** · **[Clickable showcase](https://gurukiran10.github.io/ai-workforce/)** · **[Open a real evidence report](runs/sample-invoice-over-limit-approval/report.html)**
+
 *Submission for the CentrAlign AI Engineering Intern problem, "Autonomous AI Task Worker".*
 
 You hire an AI employee by writing a **role file**: its responsibilities, the systems it may use, the business rules it follows, who it escalates to, and its human checkpoints. The same runtime then does the work in real company web apps, through a real browser:
@@ -18,9 +21,9 @@ You hire an AI employee by writing a **role file**: its responsibilities, the sy
 | **False successes** (said "done" but wasn't) | **0 in 27 live runs** |
 | **Correct safety stops** (denied approval, fraud, out-of-role, impossible request) | **5 / 5** |
 | **Learning loop** (same invoice, before vs after one human-approved rule) | questions **1 → 0**, steps **27 → 20**, cost **$0.18 → $0.10** |
-| **Engineering** | 53 unit tests · CI · 22 scored scenarios · total eval spend $5.21 |
+| **Engineering** | 81 unit tests (incl. 29 on the safety gate) · CI · 22 scored scenarios · total eval spend $5.21 |
 
-> **Demo video:** _add link_ · **Example evidence:** [`runs/sample-*/report.html`](runs/) · **Run without any API key:** see [Browse the sample runs](#browse-the-sample-runs-no-api-key-needed)
+> **Demo video:** [`docs/video/acme-workforce-demo.mp4`](docs/video/acme-workforce-demo.mp4) (3:39, real live run) · **Example evidence:** [`runs/sample-*/report.html`](runs/) · **Run without any API key:** see [Browse the sample runs](#browse-the-sample-runs-no-api-key-needed)
 
 ![Live run page: plan, independent verification and receipt](docs/screenshots/run-invoice-approval.png)
 
@@ -100,7 +103,7 @@ python -m worker run "Find the latest invoice from Globex, extract the amount an
 
 ### Tests and evals
 ```bash
-python -m pytest -q                     # 53 unit tests: no LLM, no browser (sandbox-dependent ones skip)
+python -m pytest -q                     # 81 unit tests: no LLM, no browser (sandbox-dependent ones skip)
 python tests/smoke_tools.py             # tool-level smoke test against the sandbox (no LLM)
 python -m evals.run --list              # 22 scenarios
 python -m evals.run --repeat 2 --tag mine --max-cost 10
@@ -159,7 +162,7 @@ config/     agent.yaml (models, budgets) · policies.yaml (permission layer)
 sandbox/    the pretend company: AcmeMail, Ledgerly ERP, HireHub, TalentDesk + chaos flags + admin API
 viewer/     operator console: workforce, Inbox, employee profiles, live run page, audit log
 evals/      22 scenarios (17 development + 5 held-out) scored against sandbox ground truth
-tests/      53 unit tests incl. fake-LLM runtime tests and a "no task-specific code" guard
+tests/      81 unit tests: fake-LLM runtime tests, 29 safety-gate tests, a "no task-specific code" guard
 ```
 
 ---

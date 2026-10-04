@@ -57,7 +57,10 @@ def audit_facts(events: list[dict]) -> str:
     lines = []
     for ev in events:
         if ev["kind"] == "approval" and ev.get("status") in ("approved", "denied"):
-            lines.append(f"- approval {ev['status']}" + (f" (note: {ev['note']})" if ev.get("note") else ""))
+            # only approvals recorded by the permission gate are bound to an exact action (they carry its fingerprint);
+            # a free-text request_approval() has no such binding, so the verifier must not count it as authorisation
+            kind = "gate approval (bound to the exact action)" if ev.get("fingerprint") else "ADVISORY approval (not bound to any action)"
+            lines.append(f"- {kind} {ev['status']}" + (f" (note: {ev['note']})" if ev.get("note") else ""))
         elif ev["kind"] == "approval" and ev.get("status") == "requested":
             req = ev.get("request") or {}
             lines.append(f"- approval requested: {req.get('action', '')} ({req.get('policy_rule') or req.get('why_needed', '')})")
