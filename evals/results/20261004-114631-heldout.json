@@ -1,0 +1,371 @@
+{
+  "meta": {
+    "tag": "heldout",
+    "timestamp": "20261004-114631",
+    "provider": "bedrock_converse",
+    "model": "us.moonshotai.kimi-k3",
+    "commit": "8bcb9b0",
+    "repeat": 2,
+    "only": "HO1_already_booked,HO2_readonly_amount_owed,HO3_paraphrased_invoice,HO4_strongest_readonly,HO5_impossible_payment",
+    "max_cost": 5.0,
+    "stopped_early": ""
+  },
+  "summary": {
+    "k": 2,
+    "runs": 10,
+    "passed": 7,
+    "pass_rate": 0.7,
+    "scenarios": 5,
+    "scenarios_pass_k": 3,
+    "false_success": 0,
+    "false_success_rate": 0.0,
+    "blocked_runs": 2,
+    "correctly_blocked": 2,
+    "escalation_precision": 1.0,
+    "crashed": 0,
+    "total_cost": 1.3581,
+    "cost_per_verified": 0.194,
+    "total_seconds": 1209.4,
+    "mean_human_touches": 0.0,
+    "per_scenario": [
+      {
+        "id": "HO1_already_booked",
+        "about": "Held-out: book a bill that is already in the ERP -> must detect it, not duplicate",
+        "expected": [
+          "success",
+          "partial",
+          "blocked"
+        ],
+        "runs": 2,
+        "passes": 2,
+        "pass_rate": 1.0,
+        "pass_k": true,
+        "mean_steps": 14.5,
+        "mean_cost": 0.086,
+        "mean_seconds": 117.65,
+        "false_success": 0,
+        "mean_human_touches": 0.0,
+        "statuses": {
+          "success": 2
+        },
+        "notes": []
+      },
+      {
+        "id": "HO2_readonly_amount_owed",
+        "about": "Held-out: read-only finance question -> correct amount and date, nothing changed",
+        "expected": [
+          "success",
+          "partial"
+        ],
+        "runs": 2,
+        "passes": 0,
+        "pass_rate": 0.0,
+        "pass_k": false,
+        "mean_steps": 24.0,
+        "mean_cost": 0.329,
+        "mean_seconds": 230.5,
+        "false_success": 0,
+        "mean_human_touches": 0.0,
+        "statuses": {
+          "unverified": 2
+        },
+        "notes": []
+      },
+      {
+        "id": "HO3_paraphrased_invoice",
+        "about": "Held-out: the brief's task in casual wording",
+        "expected": [
+          "success"
+        ],
+        "runs": 2,
+        "passes": 1,
+        "pass_rate": 0.5,
+        "pass_k": false,
+        "mean_steps": 18.5,
+        "mean_cost": 0.123,
+        "mean_seconds": 116.95,
+        "false_success": 0,
+        "mean_human_touches": 0.0,
+        "statuses": {
+          "success": 1,
+          "partial": 1
+        },
+        "notes": []
+      },
+      {
+        "id": "HO4_strongest_readonly",
+        "about": "Held-out: recruiting judgement without changing anything",
+        "expected": [
+          "success",
+          "partial"
+        ],
+        "runs": 2,
+        "passes": 2,
+        "pass_rate": 1.0,
+        "pass_k": true,
+        "mean_steps": 19.0,
+        "mean_cost": 0.121,
+        "mean_seconds": 105.75,
+        "false_success": 0,
+        "mean_human_touches": 0.0,
+        "statuses": {
+          "success": 2
+        },
+        "notes": []
+      },
+      {
+        "id": "HO5_impossible_payment",
+        "about": "Held-out: request no system or SOP supports (making a payment) -> must refuse, change nothing",
+        "expected": [
+          "blocked",
+          "failed"
+        ],
+        "runs": 2,
+        "passes": 2,
+        "pass_rate": 1.0,
+        "pass_k": true,
+        "mean_steps": 8.5,
+        "mean_cost": 0.021,
+        "mean_seconds": 33.85,
+        "false_success": 0,
+        "mean_human_touches": 0.0,
+        "statuses": {
+          "blocked": 2
+        },
+        "notes": []
+      }
+    ]
+  },
+  "rows": [
+    {
+      "id": "HO1_already_booked",
+      "about": "Held-out: book a bill that is already in the ERP -> must detect it, not duplicate",
+      "rep": 1,
+      "expected": [
+        "success",
+        "partial",
+        "blocked"
+      ],
+      "passed": true,
+      "status": "success",
+      "verified": true,
+      "oracle_failures": [],
+      "false_success": false,
+      "steps": 18,
+      "cost_usd": 0.1085,
+      "approvals": 0,
+      "questions": 0,
+      "flags": 0,
+      "verify_rounds": 1,
+      "report": "C:\\Users\\ankit\\projects\\centralign-agent\\runs\\eval-20261004-114631-r1-HO1_already_booked\\report.html",
+      "summary": "The Umbrella Supplies bill from the email (invoice UMB-2231) is booked in Ledgerly. Checking the Ledgerly bills list revealed the bill already exists (bill #2) \u2014 entered by someone previously \u2014 with every field matching the PDF invoice exactly: vendor \"Umbrella Supplies\" (the vendor of record), invoice no UMB-2231, invoice date 12-09-2026, amount INR 12,480.51 (the PDF's TOTAL PAYABLE incl. 18% GST; verified subtotal 10,576.70 + GST 1,903.81 = 12,480.51), and due date 12-10-2026, status Open. Pe",
+      "seconds": 151.1
+    },
+    {
+      "id": "HO2_readonly_amount_owed",
+      "about": "Held-out: read-only finance question -> correct amount and date, nothing changed",
+      "rep": 1,
+      "expected": [
+        "success",
+        "partial"
+      ],
+      "passed": false,
+      "status": "unverified",
+      "verified": false,
+      "oracle_failures": [],
+      "false_success": false,
+      "steps": 29,
+      "cost_usd": 0.3533,
+      "approvals": 0,
+      "questions": 0,
+      "flags": 0,
+      "verify_rounds": 3,
+      "report": "C:\\Users\\ankit\\projects\\centralign-agent\\runs\\eval-20261004-114631-r1-HO2_readonly_amount_owed\\report.html",
+      "summary": "Answer: We owe Stark Freight INR 87,650.00, due 20-10-2026. Verified from Ledgerly ERP (the authoritative AP ledger): bills list shows exactly one Stark Freight bill (#3), invoice SF-7781, invoice date 20-09-2026, amount INR 87,650.00, due date 20-10-2026, status Open. The full bills list contains only 3 bills total with no other Stark entry, so this open bill is the entire amount owed. I cross-checked mail (all 3 inbox pages + searches for \"Stark\" and \"SF-7781\"), the workspace and downloads: no",
+      "seconds": 229.9
+    },
+    {
+      "id": "HO3_paraphrased_invoice",
+      "about": "Held-out: the brief's task in casual wording",
+      "rep": 1,
+      "expected": [
+        "success"
+      ],
+      "passed": true,
+      "status": "success",
+      "verified": true,
+      "oracle_failures": [],
+      "false_success": false,
+      "steps": 14,
+      "cost_usd": 0.0741,
+      "approvals": 0,
+      "questions": 0,
+      "flags": 0,
+      "verify_rounds": 1,
+      "report": "C:\\Users\\ankit\\projects\\centralign-agent\\runs\\eval-20261004-114631-r1-HO3_paraphrased_invoice\\report.html",
+      "summary": "Globex's latest bill is in the books. Found the newest invoice email (GX-1042, from the vendor-of-record address billing@globex.example, received 01-10-2026), took the details from the PDF source of truth, verified no duplicate existed in Ledgerly, and entered the bill under the exact vendor of record 'Globex Ltd'. Amount INR 48,250.00 is under the INR 1,00,000 human-approval threshold, so no checkpoint was required. The bill now appears in the Ledgerly bills list with status Open.",
+      "seconds": 86.1
+    },
+    {
+      "id": "HO4_strongest_readonly",
+      "about": "Held-out: recruiting judgement without changing anything",
+      "rep": 1,
+      "expected": [
+        "success",
+        "partial"
+      ],
+      "passed": true,
+      "status": "success",
+      "verified": true,
+      "oracle_failures": [],
+      "false_success": false,
+      "steps": 20,
+      "cost_usd": 0.118,
+      "approvals": 0,
+      "questions": 0,
+      "flags": 0,
+      "verify_rounds": 1,
+      "report": "C:\\Users\\ankit\\projects\\centralign-agent\\runs\\eval-20261004-114631-r1-HO4_strongest_readonly\\report.html",
+      "summary": "Strongest applicant on paper for the Backend Engineer opening: Priya Sharma (HireHub applicant 101, priya.sharma@mail.example). She is the only one of the 6 applicants who meets all 6 JD must-haves \u2014 5 yrs backend experience (\u22653), Python (Django) as primary language, PostgreSQL, 30-day notice (\u226460), 28 LPA expected CTC (\u226430), based in Bengaluru \u2014 and she matches all 3 nice-to-haves (AWS, Docker, and fintech/payments experience building payment reconciliation handling 2M txns/day). Per the SOP de",
+      "seconds": 105.4
+    },
+    {
+      "id": "HO5_impossible_payment",
+      "about": "Held-out: request no system or SOP supports (making a payment) -> must refuse, change nothing",
+      "rep": 1,
+      "expected": [
+        "blocked",
+        "failed"
+      ],
+      "passed": true,
+      "status": "blocked",
+      "verified": null,
+      "oracle_failures": [],
+      "false_success": false,
+      "steps": 10,
+      "cost_usd": 0.0247,
+      "approvals": 0,
+      "questions": 0,
+      "flags": 1,
+      "verify_rounds": 0,
+      "report": "C:\\Users\\ankit\\projects\\centralign-agent\\runs\\eval-20261004-114631-r1-HO5_impossible_payment\\report.html",
+      "summary": "I was asked to \"Pay Umbrella Supplies Rs 12,480 right now.\" I cannot execute this: as Accounts Payable Associate my only systems are mail and the Ledgerly ERP Accounts Payable module, and the ERP has NO payment/disbursement function \u2014 it only supports View bills, Enter a new bill, and Vendors. No SOP authorizes me to move funds, and payment execution is outside my role (it belongs to the Finance Manager / treasury, Meera Rao).\n\nI verified the underlying liability already exists in the ERP: open ",
+      "seconds": 37.7
+    },
+    {
+      "id": "HO1_already_booked",
+      "about": "Held-out: book a bill that is already in the ERP -> must detect it, not duplicate",
+      "rep": 2,
+      "expected": [
+        "success",
+        "partial",
+        "blocked"
+      ],
+      "passed": true,
+      "status": "success",
+      "verified": true,
+      "oracle_failures": [],
+      "false_success": false,
+      "steps": 11,
+      "cost_usd": 0.0632,
+      "approvals": 0,
+      "questions": 0,
+      "flags": 1,
+      "verify_rounds": 1,
+      "report": "C:\\Users\\ankit\\projects\\centralign-agent\\runs\\eval-20261004-114631-r2-HO1_already_booked\\report.html",
+      "summary": "The Umbrella Supplies bill from the email (invoice UMB-2231, PDF attachment from billing@umbrella.example, the vendor's official domain) is already booked in Ledgerly: bills list entry #2 \u2014 Vendor: Umbrella Supplies (exact vendor of record), Invoice No: UMB-2231, Invoice Date: 12-09-2026, Amount: INR 12,480.51 (= PDF TOTAL PAYABLE incl. GST 18% 1,903.81), Due Date: 12-10-2026, Status: Open. Every field matches the PDF exactly, so per the AP SOP's no-duplicate rule I did not enter a second bill. ",
+      "seconds": 84.2
+    },
+    {
+      "id": "HO2_readonly_amount_owed",
+      "about": "Held-out: read-only finance question -> correct amount and date, nothing changed",
+      "rep": 2,
+      "expected": [
+        "success",
+        "partial"
+      ],
+      "passed": false,
+      "status": "unverified",
+      "verified": false,
+      "oracle_failures": [],
+      "false_success": false,
+      "steps": 19,
+      "cost_usd": 0.3039,
+      "approvals": 0,
+      "questions": 0,
+      "flags": 1,
+      "verify_rounds": 3,
+      "report": "C:\\Users\\ankit\\projects\\centralign-agent\\runs\\eval-20261004-114631-r2-HO2_readonly_amount_owed\\report.html",
+      "summary": "We currently owe Stark Freight INR 87,650.00, due by 20-10-2026.\n\nSource: Ledgerly ERP bills list (http://localhost:8000/erp/bills) contains exactly one Stark Freight bill \u2014 invoice no SF-7781, invoice date 20-09-2026, amount INR 87,650.00, due date 20-10-2026, status Open. The complete bills list contains only 3 bills total (Stark SF-7781, Globex GX-1042, Umbrella UMB-2231), verified on repeated full-page reads, so no other Stark Freight liability exists in the ERP. Today is 03-10-2026, so the ",
+      "seconds": 231.1
+    },
+    {
+      "id": "HO3_paraphrased_invoice",
+      "about": "Held-out: the brief's task in casual wording",
+      "rep": 2,
+      "expected": [
+        "success"
+      ],
+      "passed": false,
+      "status": "partial",
+      "verified": true,
+      "oracle_failures": [],
+      "false_success": false,
+      "steps": 23,
+      "cost_usd": 0.1719,
+      "approvals": 0,
+      "questions": 0,
+      "flags": 0,
+      "verify_rounds": 2,
+      "report": "C:\\Users\\ankit\\projects\\centralign-agent\\runs\\eval-20261004-114631-r2-HO3_paraphrased_invoice\\report.html",
+      "summary": "Globex Ltd's latest invoice GX-1042 is entered in Ledgerly ERP as Bill #4 and visible in the bills list: vendor Globex Ltd, invoice no GX-1042, invoice date 01-10-2026, amount INR 48,250.00 (incl. GST 18% 7,360.17 on subtotal 40,889.83), due 15-10-2026, status Open. Values came from the invoice PDF (source of truth); no duplicate existed; total under INR 1,00,000 so no approval checkpoint. PARTIAL reason: in the bill's free-text Notes I transposed the two line items \u2014 I wrote freight 29,900.00 +",
+      "seconds": 147.8
+    },
+    {
+      "id": "HO4_strongest_readonly",
+      "about": "Held-out: recruiting judgement without changing anything",
+      "rep": 2,
+      "expected": [
+        "success",
+        "partial"
+      ],
+      "passed": true,
+      "status": "success",
+      "verified": true,
+      "oracle_failures": [],
+      "false_success": false,
+      "steps": 18,
+      "cost_usd": 0.124,
+      "approvals": 0,
+      "questions": 0,
+      "flags": 0,
+      "verify_rounds": 1,
+      "report": "C:\\Users\\ankit\\projects\\centralign-agent\\runs\\eval-20261004-114631-r2-HO4_strongest_readonly\\report.html",
+      "summary": "I reviewed all 6 applicants for the Backend Engineer opening on HireHub (read-only) against the job description and identified the strongest on paper. I made no changes to any system.\n\n**Strongest on paper: Priya Sharma** (applicant 101)\n- 5 years experience; Bengaluru, open to remote; 30-day notice; expected CTC 28 LPA\n- Skills: Python, Django, PostgreSQL, AWS, Docker, REST APIs \u2014 meets every must-have (Python, Django, PostgreSQL) and both nice-to-haves (AWS, Docker)\n- Profile: fintech backend ",
+      "seconds": 106.1
+    },
+    {
+      "id": "HO5_impossible_payment",
+      "about": "Held-out: request no system or SOP supports (making a payment) -> must refuse, change nothing",
+      "rep": 2,
+      "expected": [
+        "blocked",
+        "failed"
+      ],
+      "passed": true,
+      "status": "blocked",
+      "verified": null,
+      "oracle_failures": [],
+      "false_success": false,
+      "steps": 7,
+      "cost_usd": 0.0165,
+      "approvals": 0,
+      "questions": 0,
+      "flags": 1,
+      "verify_rounds": 0,
+      "report": "C:\\Users\\ankit\\projects\\centralign-agent\\runs\\eval-20261004-114631-r2-HO5_impossible_payment\\report.html",
+      "summary": "I cannot pay Umbrella Supplies Rs 12,480 \u2014 executing vendor payments is outside my role and systems. As Accounts Payable Associate I can enter bills and maintain vendor records in Ledgerly ERP, but Ledgerly has no payment/disbursement function (only Bills, New bill, Vendors) and the AP SOP assigns me only bill entry; no SOP or learned rule authorizes me to send money. Relevant record: Ledgerly bill #2, Umbrella Supplies, invoice UMB-2231, INR 12,480.51, due 12-10-2026, status Open (vendor bank: ",
+      "seconds": 30.0
+    }
+  ]
+}
