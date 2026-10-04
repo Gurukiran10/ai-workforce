@@ -1,0 +1,29 @@
+company: Acme Logistics Pvt Ltd
+today: "03-10-2026"
+
+llm:
+  # bedrock_converse = Amazon Nova (works on this account today, AWS credits, no Marketplace)
+  # bedrock          = Claude on Bedrock (needs AWS Marketplace subscription / card)
+  # gemini / groq     = free tiers (keys GEMINI_API_KEY / GROQ_API_KEY in .env)
+  provider: bedrock_converse   # bedrock_converse | gemini | groq | bedrock | bedrock_mantle | claude_platform_aws | anthropic
+  region: us-east-1
+  converse_model: us.moonshotai.kimi-k3   # also works on this account: zai.glm-5, deepseek.v3.2, openai.gpt-oss-120b-1:0, us.amazon.nova-pro-v1:0
+  # independent model so the worker can't grade its own homework (falls back to the worker's model if unavailable)
+  verifier_provider: bedrock_converse
+  verifier_model: zai.glm-5
+  gemini_model: gemini-3.8-flash
+  gemini_rpm: 4.8              # free tier: 5 requests/minute -> pace client-side
+  groq_model: openai/gpt-oss-120b
+  openrouter_model: anthropic/claude-sonnet-5.5   # needs OpenRouter credits; free option: nvidia/nemotron-3-super-120b-a12b:free
+  bedrock_model: global.anthropic.claude-sonnet-4-6   # what this AWS account can access
+  mantle_model: anthropic.claude-sonnet-5-5
+  anthropic_model: claude-sonnet-5-5
+  effort: medium               # low | medium | high
+  max_tokens: 16000
+
+runtime:
+  max_steps: 80                # LLM turns for the worker
+  max_verify_rounds: 2         # repair rounds after a failed verification
+  verifier_max_steps: 24
+  max_cost_usd: 3.00           # hard stop per run
+  allowed_origins: ["http://localhost:8000", "http://127.0.0.1:8000"]

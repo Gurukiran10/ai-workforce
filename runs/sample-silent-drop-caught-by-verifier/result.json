@@ -1,0 +1,116 @@
+{
+  "status": "success",
+  "summary": "Found the latest Globex invoice (GX-1042) in AcmeMail, extracted details from the PDF, and entered it into Ledgerly ERP as a new bill. Confirmed it appears in the bills list with correct values.",
+  "claims": [
+    {
+      "evidence": "Ledgerly ERP bills list shows exactly one bill #4: Vendor = Globex Ltd, Invoice No = GX-1042, Invoice Date = 01-10-2026, Amount (INR) = 48,250.00, Due Date = 15-10-2026, Status = Open. Source PDF GX-1042.pdf: Invoice No GX-1042, Invoice Date 01-10-2026, TOTAL PAYABLE INR 48,250.00, Payment Due 15-10-2026, from billing@globex.example. Page message confirmed 'Bill #4 saved successfully.'",
+      "criterion": "Ledgerly ERP bills list shows exactly one bill for vendor Globex Ltd with Invoice No = GX-1042, Invoice Date = 01-10-2026, Amount = 48,250.00 INR, Due Date = 15-10-2026"
+    }
+  ],
+  "verified": true,
+  "deterministic_issues": [],
+  "run_id": "eval-20261003-234136-r1-F3_silent_drop",
+  "goal": "Find the latest invoice from Globex, extract the amount and due date, enter it into our accounts system, and tell me once it is done.",
+  "duration_s": 68.3,
+  "usage": {
+    "input": 140,
+    "output": 5491,
+    "cache_read": 150150,
+    "cache_write": 17841,
+    "llm_calls": 20
+  },
+  "cost_usd": 0.047,
+  "steps": 17,
+  "verifications": [
+    {
+      "passed": true,
+      "verdicts": [
+        {
+          "evidence": "Live bills list at http://localhost:8000/erp/bills shows the complete list of 4 bills. Bill #4: 'Globex Ltd | GX-1042 | 01-10-2026 | 48,250.00 | 15-10-2026 | Open' \u2014 all five required fields match exactly. The only other Globex Ltd row is bill #1 'GX-0987 | 01-09-2026 | 39,900.00 | Paid', a different older invoice, so there is exactly one GX-1042 bill and no duplicate. Source PDF downloads/GX-1042.pdf confirms: 'Invoice No: GX-1042', 'Invoice Date: 01-10-2026', 'Payment Due: 15-10-2026', 'TOTAL PAYABLE INR 48,250.00' (GST-inclusive, per SOP).",
+          "criterion": "Ledgerly ERP bills list shows exactly one bill for vendor Globex Ltd with Invoice No = GX-1042, Invoice Date = 01-10-2026, Amount = 48,250.00 INR, Due Date = 15-10-2026",
+          "verdict": "pass"
+        }
+      ],
+      "side_effects": "No side effects found. The full unfiltered bills list contains only 4 bills: the newly added GX-1042 bill (#4) plus three pre-existing bills (#1 Globex GX-0987 Paid, #2 Umbrella UMB-2231, #3 Stark SF-7781). No duplicate GX-1042 entries and no unexpected extra records.",
+      "steps": 3
+    }
+  ],
+  "facts": {
+    "Globex invoice GX-1042 details": {
+      "value": "Invoice No GX-1042, date 01-10-2026, due 15-10-2026, TOTAL PAYABLE INR 48,250.00 incl GST; from billing@globex.example (official domain)",
+      "source": "downloads/GX-1042.pdf"
+    }
+  },
+  "escalations": [],
+  "flags": [],
+  "ledger": [
+    {
+      "fingerprint": "04ca048d354a",
+      "url": "http://localhost:8000/erp/bills/new",
+      "button": "Save bill",
+      "fields": {
+        "Vendor": "Globex Ltd",
+        "Invoice number": "GX-1042",
+        "Invoice date (DD-MM-YYYY)": "01-10-2026",
+        "Amount (INR, incl. GST)": "48250.00",
+        "Due date (DD-MM-YYYY)": "15-10-2026",
+        "Notes": "September 2026 freight handling and warehouse storage services. Source: GX-1042.pdf received via AcmeMail from billing@globex.example."
+      },
+      "outcome": "ok",
+      "step": 11,
+      "retry_reason": ""
+    },
+    {
+      "fingerprint": "5d62409658a4",
+      "url": "http://localhost:8000/erp/bills/new",
+      "button": "Save bill",
+      "fields": {
+        "Vendor": "Globex Ltd",
+        "Invoice number": "GX-1042",
+        "Invoice date (DD-MM-YYYY)": "01-10-2026",
+        "Amount (INR, incl. GST)": "48250.00",
+        "Due date (DD-MM-YYYY)": "15-10-2026",
+        "Notes": ""
+      },
+      "outcome": "ok",
+      "step": 15,
+      "retry_reason": "First save returned \"Saved!\" but the bill did not appear in the bills list (URL showed saved=0); confirmed no duplicate exists, so re-saving."
+    }
+  ],
+  "plan": [
+    {
+      "description": "Find latest Globex invoice in AcmeMail (check for revised/superseding invoices)",
+      "id": "1",
+      "status": "done"
+    },
+    {
+      "description": "Download and read invoice PDF; extract invoice number, date, total payable (incl GST), due date",
+      "id": "2",
+      "status": "done"
+    },
+    {
+      "description": "Verify vendor identity (Globex Ltd, billing@globex.example) per vendors.md",
+      "id": "3",
+      "status": "done"
+    },
+    {
+      "description": "Check Ledgerly bills list for duplicate (vendor + invoice number)",
+      "id": "4",
+      "status": "done"
+    },
+    {
+      "description": "Enter bill in Ledgerly (DD-MM-YYYY dates, INR amount)",
+      "id": "5",
+      "status": "done"
+    },
+    {
+      "description": "Confirm bill appears in Ledgerly bills list with correct values",
+      "id": "6",
+      "status": "done"
+    }
+  ],
+  "success_criteria": [
+    "Ledgerly ERP bills list shows exactly one bill for vendor Globex Ltd with Invoice No = GX-1042, Invoice Date = 01-10-2026, Amount = 48,250.00 INR, Due Date = 15-10-2026"
+  ],
+  "report": "C:\\Users\\ankit\\projects\\centralign-agent\\runs\\eval-20261003-234136-r1-F3_silent_drop\\report.html"
+}

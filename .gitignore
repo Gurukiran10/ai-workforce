@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+runs/*
+!runs/.gitkeep
+!runs/sample-*/
+sandbox/generated/
+memory/learned_facts.md
+.pytest_cache/
+memory/_proposed/
+.pytest_cache/
+runs/_*.log

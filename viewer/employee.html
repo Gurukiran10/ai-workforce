@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Employee · Acme Workforce</title>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('wf-theme')||'dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/runs-ui/theme.css">
+<style>
+  .hero { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .hero h1 { display: flex; align-items: center; gap: 10px; }
+  .hero .meta { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 5px; color: var(--muted); font-size: 13px; align-items: center; }
+  .state { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+  .state.working { color: var(--ok-text); } .state.waiting { color: var(--warn-text); } .state.idle { color: var(--muted); }
+  .strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+  .strip div { background: var(--surface); padding: 16px 20px; }
+  .strip b { display: block; font-size: 26px; font-weight: 650; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .strip b .muted { font-size: 13px; font-weight: 500; letter-spacing: 0; }
+  .strip span { font-size: 12.5px; color: var(--muted); }
+  .ladder { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 4px 0 16px; }
+  .rung { position: relative; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2); }
+  .rung .n { font: 600 11px var(--mono); color: var(--faint); } .rung b { display: block; font-size: 14px; margin: 2px 0 3px; } .rung p { font-size: 12.5px; color: var(--muted); }
+  .rung.cur { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent); }
+  .rung.cur b { color: var(--accent-text); }
+  .rung.road { opacity: .5; border-style: dashed; }
+  .rung .tagpos { position: absolute; top: 12px; right: 12px; }
+  .rec { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border); flex-wrap: wrap; }
+  .rec .txt { flex: 1; min-width: 240px; font-size: 13px; color: var(--text-2); }
+  .defs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .defs .card h2 { display: flex; align-items: center; gap: 8px; }
+  .defs .card h2 svg { color: var(--accent-text); }
+  ul.clean { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  ul.clean li { display: grid; grid-template-columns: 16px 1fr; gap: 10px; font-size: 13px; color: var(--text-2); }
+  ul.clean li svg { margin-top: 2px; color: var(--ok-text); }
+  .sub-h { margin: 16px 0 8px; }
+  .pol { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 12px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .pol:last-child { border-bottom: 0; }
+  .pol .ap { grid-column: 2 / 4; font-size: 12px; color: var(--muted); }
+  .never { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 9px 12px; border-radius: 9px; background: var(--err-soft); color: var(--err-text); font-size: 12.5px; font-weight: 500; }
+  .learned li svg { color: var(--accent-text) !important; }
+  .enforced { display: flex; align-items: center; gap: 10px; justify-content: center; color: var(--muted); font-size: 13px; padding: 4px 0; }
+  .enforced svg { color: var(--ok-text); }
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; }
+  .filters .chip.on { background: var(--accent-soft); color: var(--accent-text); border-color: transparent; }
+  .msg { font-size: 12.5px; }
+  @media (max-width: 1000px) { .strip { grid-template-columns: repeat(2, 1fr); } .defs { grid-template-columns: 1fr; } .ladder { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) { .hide-sm { display: none; } }
+</style>
+</head>
+<body>
+<header id="nav"></header>
+<main class="page" id="main"><div class="card"><p class="muted">Loading…</p></div></main>
+<script src="/runs-ui/shared.js"></script>
+<script>
+const ID = "{{role_id}}";
+const {$, $$, esc, short} = WF;
+WF.nav(ID === 'all' ? 'audit' : 'workforce');
+const SYS = {mail: ['AcmeMail', 'read & send mail'], erp: ['Ledgerly ERP', 'bills & vendor master'], jobs: ['HireHub', 'job portal'], ats: ['TalentDesk', 'candidates & interviews']};
+const ACT = {require_approval: ['warn', 'Needs approval'], deny: ['err', 'Never allowed'], allow: ['ok', 'Allowed']};
+let D = null, filter = 'all', who = 'all', showAll = false;
+
+function historyTable(runs, roles, showEmp) {
+  const map = Object.fromEntries((roles || []).map(r => [r.id, r]));
+  const all = runs.filter(r => (filter === 'all' || r.outcome === filter || (filter === 'live' && ['working', 'needs_you'].includes(r.outcome))) && (who === 'all' || r.role === who));
+  const rows = showAll ? all : all.slice(0, 12);
+  const more = all.length > rows.length ? `<div style="padding:12px 20px;border-top:1px solid var(--border)"><button class="btn sm ghost" data-more>Show all ${all.length} tasks</button></div>` : '';
+  return `<div class="table-wrap"><table class="tbl"><thead><tr>${showEmp ? '<th>Employee</th>' : ''}<th>Task</th><th>Outcome</th><th class="num hide-sm">Steps</th><th class="num hide-sm">Human touches</th><th class="num">Cost</th><th class="hide-sm">When</th><th>Evidence</th></tr></thead><tbody>
+    ${rows.length ? rows.map(r => { const ro = map[r.role] || {name: r.role_name || 'Unassigned', avatar_hue: 220};
+      return `<tr class="link" onclick="if(!event.target.closest('a'))location='/runs/${esc(r.id)}'">
+      ${showEmp ? `<td><span class="who">${WF.avatar(ro, 's')}<b>${esc(ro.name)}</b></span></td>` : ''}
+      <td class="task"><div><a href="/runs/${esc(r.id)}" style="color:inherit">${esc(r.goal)}</a></div><span class="mono faint">${esc(r.id)}</span></td>
+      <td>${WF.outcome(r.outcome)}</td><td class="num hide-sm">${r.steps ?? '—'}</td><td class="num hide-sm">${r.human_touches || '<span class="faint">0</span>'}</td>
+      <td class="num">${WF.usd(r.cost_usd)}</td><td class="muted tnum hide-sm nw">${WF.ago(r.started)}</td>
+      <td>${r.status !== 'running' && r.status !== 'abandoned' ? `<a href="/runs/${esc(r.id)}/file/report.html" target="_blank" rel="noopener" class="small">Evidence ↗</a>` : '<span class="faint small">—</span>'}</td></tr>`; }).join('')
+    : `<tr><td colspan="8" class="empty">No matching work.</td></tr>`}</tbody></table>${more}</div>`;
+}
+function filterBar(roles) {
+  const f = [['all', 'All'], ['verified', 'Verified'], ['escalated', 'Escalated'], ['unverified', 'Not verified'], ['failed', 'Failed'], ['live', 'In progress']];
+  const w = roles ? `<div class="seg" style="margin-right:6px">${[['all', 'Everyone', null], ...roles.map(r => [r.id, r.name, r])].map(([id, l, r]) =>
+    `<button class="${who === id ? 'on' : ''}" data-who="${id}">${r ? WF.avatar(r, 's') : ''}${esc(l)}</button>`).join('')}</div>` : '';
+  return `<div class="row wrap">${w}<div class="filters">${f.map(([k, l]) => `<button class="chip ${filter === k ? 'on' : ''}" data-f="${k}">${l}</button>`).join('')}</div></div>`;
+}
+function bindFilters() {
+  $$('[data-f]').forEach(b => b.onclick = () => { filter = b.dataset.f; render(); });
+  $$('[data-who]').forEach(b => b.onclick = () => { who = b.dataset.who; render(); });
+  $$('[data-more]').forEach(b => b.onclick = () => { showAll = true; render(); });
+}
+
+function renderAudit() {
+  document.title = 'Audit log · Acme Workforce';
+  const runs = D.runs, tot = runs.reduce((a, r) => a + (r.cost_usd || 0), 0), ver = runs.filter(r => r.outcome === 'verified').length;
+  $('#main').innerHTML = `<div class="pagehead"><div><h1>Audit log</h1><p class="sub tnum">Every task, every employee: ${runs.length} runs · ${ver} verified · ${WF.usd(tot)} ${WF.inr(tot)} total spend. Each run keeps a full trace, screenshots and an evidence report.</p></div></div>
+    <section class="card"><div class="card-head">${filterBar(D.roles)}</div>${historyTable(runs, D.roles, true)}</section>`;
+  bindFilters();
+}
+
+function render() {
+  if (ID === 'all') return renderAudit();
+  const r = D, t = r.trust || {};
+  document.title = `${r.name} · Acme Workforce`;
+  const st = r.status, stl = st === 'working' ? 'Working' : st === 'waiting' ? 'Waiting on you' : 'Idle';
+  const cpv = t.verified ? (t.cost_usd || 0) / t.verified : null;
+  const lvl = r.autonomy === 'standard' ? 1 : 0, rec = r.recommended || {};
+  const recIdx = rec.level === 'standard' ? 1 : 0;
+  const rungs = [['Supervised', 'A human approves every consequential action.'], ['Standard', 'Policy rules decide; only flagged actions need approval.'], ['Autonomous', 'Acts within limits and reports after. Roadmap.']];
+  const live = r.active_run ? `<a href="/runs/${esc(r.active_run.id)}">${esc(short(r.active_run.sentence || r.active_run.goal, 60))}</a>` : '';
+  const rules = (r.rules || []).map(p => { const [c, l] = ACT[p.action] || ['neutral', p.action || 'rule'];
+    return `<div class="pol"><span class="tag mono">${esc(p.id)}</span><span>${esc(p.description || '')}</span><span class="badge ${c}">${esc(l)}</span>${p.approver_display ? `<span class="ap">Approver: ${esc(p.approver_display)}</span>` : ''}</div>`; }).join('');
+  const esc2 = r.escalation || {};
+  $('#main').innerHTML = `
+    <section class="card hero">${WF.avatar(r, 'xl', st)}
+      <div class="grow" style="min-width:0"><h1>${esc(r.name)} <span class="badge accent" style="font-size:11.5px">AI employee</span></h1>
+        <div class="meta"><span style="color:var(--text-2);font-weight:500">${esc(r.title)}</span><span class="state ${st}"><i class="dot ${st !== 'idle' ? 'pulse' : ''}"></i>${stl}</span>${live}
+          ${r.reports_to ? `<span>Reports to <b style="color:var(--text-2)">${esc(r.reports_to)}</b></span>` : ''}</div></div>
+      ${st === 'waiting' ? `<a class="btn" href="/inbox">Review request ${WF.icon('arrow', 14, 2)}</a>` : ''}
+      <a class="btn primary" href="/runs">Assign work</a></section>
+
+    <section class="strip" aria-label="Trust record">
+      <div><b>${t.verified ?? 0}</b><span>Verified tasks</span></div>
+      <div><b>${t.escalated ?? 0}</b><span>Escalated (stopped for a human)</span></div>
+      <div><b>${t.unverified ?? 0}</b><span>Failed verifications${t.failed ? ` · ${t.failed} failed runs` : ''}</span></div>
+      <div><b>${cpv == null ? '—' : WF.usd(cpv)} <span class="muted">${cpv == null ? '' : WF.inr(cpv)}</span></b><span>Cost per verified task</span></div>
+    </section>
+
+    <section class="card"><div class="card-head"><div><h2>Trust ladder</h2><p class="small muted">Autonomy is earned from verified work and granted by a human.</p></div><span class="msg" id="amsg" role="status"></span></div>
+      <div class="ladder">${rungs.map(([n, d], i) => `<div class="rung ${i === lvl ? 'cur' : ''} ${i === 2 ? 'road' : ''}"><span class="n">LEVEL ${i + 1}</span>
+        ${i === lvl ? '<span class="badge accent tagpos">Current</span>' : i === 2 ? '<span class="badge neutral tagpos">Roadmap</span>' : i === recIdx ? '<span class="badge ok tagpos">Recommended</span>' : ''}
+        <b>${n}</b><p>${d}</p></div>`).join('')}</div>
+      <div class="rec"><span class="badge ${recIdx === lvl ? 'ok' : 'warn'}">Recommended: ${esc((rec.level || 'supervised').replace(/^./, c => c.toUpperCase()))}</span>
+        <span class="txt">${esc(rec.reason || '')}</span>
+        <div class="row"><button class="btn sm ${lvl === 0 ? '' : ''}" data-lvl="supervised" ${lvl === 0 ? 'disabled' : ''}>Set Supervised</button>
+          <button class="btn sm ${lvl === 1 ? '' : 'primary'}" data-lvl="standard" ${lvl === 1 ? 'disabled' : ''}>Set Standard</button></div></div>
+    </section>
+
+    <div class="defs">
+      <section class="card"><div class="card-head"><h2>${WF.icon('check', 16, 2)}Responsibilities</h2></div>
+        <ul class="clean">${(r.responsibilities || []).map(x => `<li>${WF.icon('check', 14, 2.2)}<span>${esc(x)}</span></li>`).join('') || '<li class="muted">Not defined.</li>'}</ul></section>
+      <section class="card"><div class="card-head"><h2>${WF.icon('lock', 16)}Permissions &amp; systems</h2></div>
+        <div style="display:flex;flex-direction:column;gap:8px">${(r.systems || []).map(s => { const [n, d] = SYS[s] || [s, '']; return `<div class="row"><span class="tag">${esc(n)}</span><span class="small muted">${esc(d)} · <span class="mono">/${esc(s)}</span></span></div>`; }).join('')}</div>
+        <p class="small muted" style="margin-top:12px">Can only open these systems. Every consequential click passes the permission layer first.</p>
+        ${r.no_deletes ? `<div class="never">${WF.icon('x', 14, 2.2)}Can never delete records</div>` : ''}</section>
+      <section class="card"><div class="card-head"><h2>${WF.icon('shield', 16)}Business rules</h2><span class="small muted">config/policies.yaml</span></div>
+        ${rules || '<p class="muted small">No policy rules attached.</p>'}
+        <h3 class="sub-h">Knowledge (SOPs)</h3><div class="chips">${(r.knowledge || []).map(k => `<span class="tag mono">${WF.icon('book', 12)}${esc(k)}</span>`).join('') || '<span class="muted small">None</span>'}</div>
+        <h3 class="sub-h">Learned rules</h3>${(r.learned_rules || []).length ? `<ul class="clean learned">${r.learned_rules.map(x => `<li>${WF.icon('brain', 14)}<span>${esc(x)}</span></li>`).join('')}</ul>`
+          : '<p class="small muted">None yet. When an employee proposes a rule, you approve it in the <a href="/inbox">Inbox</a>.</p>'}</section>
+      <section class="card"><div class="card-head"><h2>${WF.icon('hand', 16)}Escalation &amp; human checkpoints</h2></div>
+        <dl class="kv" style="margin-bottom:14px"><dt>Approvals go to</dt><dd>${esc(esc2.approver || '—')}</dd><dt>Questions go to</dt><dd>${esc(esc2.questions_to || 'the requester')}</dd></dl>
+        <ul class="clean">${(r.human_checkpoints || []).map(x => `<li>${WF.icon('hand', 14)}<span>${esc(x)}</span></li>`).join('') || '<li class="muted">None defined.</li>'}</ul></section>
+    </div>
+    <p class="enforced">${WF.icon('shield', 16)}Rules are enforced in code by the permission layer, not by the model.</p>
+
+    <section class="card"><div class="card-head"><h2>Work history</h2>${filterBar(null)}</div>${historyTable(r.runs || [], [r], false)}</section>`;
+  bindFilters();
+  $$('[data-lvl]').forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    try { const res = await fetch(`/api/roles/${encodeURIComponent(ID)}/autonomy`, {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({level: b.dataset.lvl})});
+      if (res.status === 404) { $('#amsg').innerHTML = `<span style="color:var(--warn-text)">No role file at roles/${esc(ID)}.yaml yet; cannot change autonomy.</span>`; b.disabled = false; return; }
+      if (!res.ok) throw new Error(res.status);
+      await load(); $('#amsg').innerHTML = `<span style="color:var(--ok-text)">Autonomy set to ${esc(b.dataset.lvl)} · logged</span>`;
+    } catch (e) { $('#amsg').innerHTML = '<span style="color:var(--err-text)">Could not update autonomy.</span>'; b.disabled = false; }
+  });
+}
+
+async function load() {
+  try { D = await WF.json(`/api/roles/${encodeURIComponent(ID)}`); render(); }
+  catch (e) { $('#main').innerHTML = `<section class="card"><h2>No such employee</h2><p class="muted" style="margin-top:6px">There is no AI employee called “${esc(ID)}”. <a href="/runs">Back to your workforce</a></p></section>`; }
+}
+load();
+setInterval(() => { if (!document.activeElement || !document.activeElement.closest('.card')) load(); }, 6000);
+</script>
+</body>
+</html>

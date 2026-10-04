@@ -1,0 +1,43 @@
+# Permission layer for the AI worker. Evaluated deterministically in code, outside the LLM,
+# for every *consequential* action (a submit button whose label matches below, or any POST-form submit). Customers edit this file,
+# not the agent code.
+
+# autonomy: "standard"  -> rules below decide
+#           "supervised"-> every consequential action needs human approval
+autonomy: standard
+
+# Button/label text that makes a click consequential (changes data in a company system).
+consequential_pattern: "\\b(submit|save|create|update|post|send|schedule|pay|approve|confirm|delete|remove|book)\\b"
+
+# When several require_approval rules match, the one with the highest `gt` threshold wins.
+rules:
+  - id: very_high_value_amount
+    description: Bills above INR 5,00,000 need CFO approval
+    when: {field: "amount|total|payable", gt: 500000}
+    action: require_approval
+    approver: CFO
+
+  - id: high_value_amount
+    description: Bills/payments above the INR 1,00,000 approval limit need Finance Manager approval
+    when: {field: "amount|total|payable", gt: 100000}
+    action: require_approval
+    approver: Finance Manager
+
+  - id: bank_details_change
+    description: Any change to bank account / IFSC needs Finance Manager approval
+    when: {field: "bank|ifsc|account number"}
+    action: require_approval
+    approver: Finance Manager
+
+  - id: no_deletes
+    description: The AI worker may never delete records
+    when: {button: "delete|remove"}
+    action: deny
+
+  - id: outbound_email
+    description: Sending email on the company's behalf needs approval
+    when: {app: "mail", button: "send|reply|forward"}
+    action: require_approval
+    approver: Requester
+
+default: allow

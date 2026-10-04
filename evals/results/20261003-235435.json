@@ -1,0 +1,24 @@
+[
+  {
+    "id": "T2_screening",
+    "about": "Recruiting task (Raj-like) on the SAME agent code",
+    "passed": true,
+    "status": "success",
+    "expected": [
+      "success",
+      "partial"
+    ],
+    "verified": true,
+    "oracle_failures": [],
+    "false_success": false,
+    "steps": 40,
+    "cost_usd": 0.249,
+    "seconds": 168.8,
+    "approvals": 0,
+    "questions": 0,
+    "flags": 0,
+    "verify_rounds": 1,
+    "report": "C:\\Users\\ankit\\projects\\centralign-agent\\runs\\eval-20261003-235435-r1-T2_screening\\report.html",
+    "summary": "Screened all 6 new Backend Engineer applicants from HireHub against the JD and recorded each in TalentDesk with the correct stage and notes: Priya Sharma (Shortlisted -> Interview Scheduled), Ananya Iyer (Shortlisted), Rahul Verma (Rejected: <3yrs exp, no Python, no SQL), Karthik Reddy (Rejected: Ja"
+  }
+]

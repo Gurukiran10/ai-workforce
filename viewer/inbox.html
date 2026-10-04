@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inbox · Acme Workforce</title>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('wf-theme')||'dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/runs-ui/theme.css">
+<style>
+  .panes { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 18px; align-items: start; }
+  .list { padding: 6px; display: flex; flex-direction: column; gap: 2px; position: sticky; top: 80px; }
+  .item { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 11px; align-items: start; padding: 11px 12px; border-radius: 10px; cursor: pointer;
+    border: 1px solid transparent; background: transparent; text-align: left; font: inherit; color: inherit; width: 100%; }
+  .item:hover { background: var(--surface-2); }
+  .item.on { background: var(--surface-2); border-color: var(--border-strong); }
+  .item .t { font-weight: 600; font-size: 13px; color: var(--text); }
+  .item .d { font-size: 12.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .item .w { font-size: 11.5px; color: var(--faint); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .item .k { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; margin-bottom: 1px; }
+  .k.approval { color: var(--warn-text); } .k.question { color: var(--info-text); } .k.learning { color: var(--accent-text); }
+  .item.resolved { opacity: .55; } .item.resolved .t { text-decoration: line-through; text-decoration-color: var(--faint); }
+  .listhead { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px 8px; }
+  .zero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; padding: 64px 32px; }
+  .zero .ic { width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; background: var(--ok-soft); color: var(--ok-text); }
+  .zero h2 { font-size: 18px; } .zero p { color: var(--muted); max-width: 520px; }
+  .context { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+  @media (max-width: 900px) { .panes { grid-template-columns: 1fr; } .list { position: static; } }
+</style>
+</head>
+<body>
+<header id="nav"></header>
+<main class="page">
+  <div class="pagehead"><div><h1>Inbox</h1><p class="sub" id="sub">Decisions your AI employees need from you.</p></div></div>
+  <div id="main"><div class="card zero"><p>Loading…</p></div></div>
+</main>
+<script src="/runs-ui/shared.js"></script>
+<script>
+const {$, $$, esc, short} = WF;
+WF.nav('inbox');
+let ROLES = {}, items = [], resolved = {}, sel = null, lastKey = null;
+const keyOf = it => `${it.type}:${it.run_id || ''}:${it.id}`;
+const KIND = {approval: ['Approval', 'lock'], question: ['Question', 'question'], learning: ['Wants to learn', 'brain']};
+
+function line(it) {
+  if (it.type === 'approval') { const r = it.request || {}; const amt = Object.entries(r.values || {}).find(([k, v]) => /amount|total|payable/i.test(k) && WF.inrAmount(v));
+    return (r.action || 'Approval').replace(/^Click\s+/i, '') + (amt ? ' · ' + WF.inrAmount(amt[1]) : ''); }
+  if (it.type === 'question') return it.question;
+  return it.rule;
+}
+function created(it) { return typeof it.created === 'number' ? WF.ago(it.created) : it.created ? String(it.created).slice(5, 16).replace('T', ' ') : ''; }
+
+function render() {
+  const all = [...items];
+  Object.values(resolved).forEach(r => { if (!all.find(x => keyOf(x) === r.key)) all.push({...r.item, _resolved: r}); });
+  const open = all.filter(x => !x._resolved && !resolved[keyOf(x)]);
+  $('#sub').textContent = open.length ? `${open.length} decision${open.length === 1 ? '' : 's'} waiting on you. Your employees are paused until you respond.` : 'Decisions your AI employees need from you.';
+  if (!all.length) {
+    $('#main').innerHTML = `<section class="card zero"><span class="ic">${WF.icon('check', 26, 2)}</span><h2>Inbox zero</h2>
+      <p>Your AI employees check in here when a decision is yours: approvals above policy limits, missing information, rules they want to learn.</p>
+      <a class="btn" href="/runs">Back to your workforce</a></section>`; sel = null; return;
+  }
+  if (!sel || !all.find(x => keyOf(x) === sel)) sel = keyOf(open[0] || all[0]);
+  const listHtml = all.map(it => { const k = keyOf(it), r = ROLES[it.role] || {name: it.role_name || 'Employee', avatar_hue: 220};
+    const done = it._resolved || resolved[k]; const [kl, ic] = KIND[it.type] || ['Request', 'inbox'];
+    return `<button class="item ${k === sel ? 'on' : ''} ${done ? 'resolved' : ''}" data-k="${esc(k)}" aria-current="${k === sel}">${WF.avatar(r, '')}
+      <div style="min-width:0"><div class="k ${it.type}">${WF.icon(done ? 'check' : ic, 12, 2)}${done ? 'Done' : kl}</div><div class="t">${esc(r.name)}</div><div class="d">${esc(short(line(it), 70))}</div></div>
+      <span class="w">${esc(created(it))}</span></button>`; }).join('');
+  const cur = all.find(x => keyOf(x) === sel);
+  const r = ROLES[cur.role] || {name: cur.role_name || 'Your AI employee', avatar_hue: 220};
+  const done = cur._resolved || resolved[sel];
+  const detail = done ? WF.doneRow(done.label, done.ok) : WF.decisionCard(cur, r);
+  const ctx = cur.run_id ? `<div class="context"><span>Task:</span><a href="/runs/${esc(cur.run_id)}">${esc(short(cur.goal || cur.run_id, 110))}</a>
+    <span class="faint">·</span><a href="/employees/${esc(cur.role || 'all')}">${esc(r.name)}'s profile</a></div>` : '';
+  $('#main').innerHTML = `<div class="panes"><aside class="card list" aria-label="Requests"><div class="listhead"><h3>Requests</h3><span class="small muted tnum">${open.length} open</span></div>${listHtml}</aside>
+    <section id="detail">${detail}${ctx}</section></div>`;
+  $$('.item').forEach(b => b.onclick = () => { sel = b.dataset.k; render(); });
+  WF.bindDecisions($('#detail'), (key, label, ok) => { resolved[key] = {key, label, ok, item: cur}; setTimeout(render, 900); });
+}
+
+document.addEventListener('wf:inbox', e => {
+  items = e.detail.items || [];
+  const k = items.map(keyOf).join('|');
+  if (k !== lastKey) { lastKey = k;
+    // don't wipe a note being typed in the currently shown card
+    const typing = document.activeElement && document.activeElement.closest && document.activeElement.closest('#detail');
+    if (!typing || !items.find(x => keyOf(x) === sel)) render(); }
+});
+WF.roleMap().then(m => { ROLES = m; if (lastKey !== null) render(); });
+</script>
+</body>
+</html>

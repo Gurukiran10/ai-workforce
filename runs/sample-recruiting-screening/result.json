@@ -1,0 +1,280 @@
+{
+  "status": "success",
+  "summary": "Screened all 6 new Backend Engineer applicants from HireHub against the JD and recorded each in TalentDesk with the correct stage and notes: Priya Sharma (Shortlisted -> Interview Scheduled), Ananya Iyer (Shortlisted), Rahul Verma (Rejected: <3yrs exp, no Python, no SQL), Karthik Reddy (Rejected: Java not Python, 32 LPA>30, Hyderabad no-remote), Sneha Patil (Rejected: notice 90d>60d), Arjun Nair (Needs Info: expected CTC not disclosed). Strongest candidate Priya Sharma (all must-haves + all 3 nice-to-haves) was booked for a screening call in the first free Thursday slot, Thu 08-10-2026 10:00, confirmed on the interview calendar.",
+  "claims": [
+    {
+      "evidence": "TalentDesk candidates list shows Priya Sharma, priya.sharma@mail.example, Backend Engineer, with notes 'Meets ALL must-haves... Nice-to-haves: AWS, Docker, fintech/payments (3/3)'. Stage advanced to Interview Scheduled upon booking (was set to Shortlisted at creation).",
+      "criterion": "TalentDesk has Priya Sharma (priya.sharma@mail.example), Backend Engineer, stage Shortlisted, with screening notes"
+    },
+    {
+      "evidence": "TalentDesk shows Rahul Verma, Rejected, notes: 'fails must-haves: (1) only 2 yrs backend exp (<3 required); (2) Python not primary language (Node.js/Express); (3) no SQL database (MongoDB only)'.",
+      "criterion": "TalentDesk has Rahul Verma (rahul.v@mail.example), Backend Engineer, stage Rejected, notes citing failed must-haves"
+    },
+    {
+      "evidence": "TalentDesk shows Ananya Iyer, Shortlisted, notes: 'Meets ALL must-haves: 4 yrs... Python primary (FastAPI), MySQL, notice 60 days, ECTC 24 LPA, Chennai + open to remote. Nice-to-haves: Docker, logistics (2/3)'.",
+      "criterion": "TalentDesk has Ananya Iyer (ananya.iyer@mail.example), Backend Engineer, stage Shortlisted, with screening notes"
+    },
+    {
+      "evidence": "TalentDesk shows Karthik Reddy, Rejected, notes: 'fails must-haves: (2) Python not primary (Java/Spring Boot); (5) expected CTC 32 LPA exceeds 30 LPA; (6) Hyderabad and NOT open to remote'.",
+      "criterion": "TalentDesk has Karthik Reddy (karthik.r@mail.example), Backend Engineer, stage Rejected, notes citing failed must-haves"
+    },
+    {
+      "evidence": "TalentDesk shows Sneha Patil, Rejected, notes: 'fails must-have: (4) notice period 90 days exceeds 60 days max'.",
+      "criterion": "TalentDesk has Sneha Patil (sneha.patil@mail.example), Backend Engineer, stage Rejected, notes citing failed must-have #4"
+    },
+    {
+      "evidence": "TalentDesk shows Arjun Nair, Needs Info, notes: 'NEEDS INFO: expected CTC not disclosed - cannot verify must-have (5) ECTC <= 30 LPA'.",
+      "criterion": "TalentDesk has Arjun Nair (arjun.nair@mail.example), Backend Engineer, stage Needs Info, notes citing missing expected CTC"
+    },
+    {
+      "evidence": "Interview calendar shows 'Thu 08-10-2026 10:00  Booked: Priya Sharma'; candidate page shows Interview: Thu 08-10-2026 10:00, Stage: Interview Scheduled. Priya was strongest: only shortlisted candidate matching all 3 nice-to-haves.",
+      "criterion": "Strongest shortlisted candidate Priya Sharma has a screening call booked in the first free Thursday slot"
+    },
+    {
+      "evidence": "TalentDesk candidates list contains exactly 6 records, one per applicant (ids 1-6), each with a distinct name/email; verified at http://localhost:8000/ats after all creates.",
+      "criterion": "No duplicate candidate records in TalentDesk (exactly 6 candidates total)"
+    }
+  ],
+  "verified": true,
+  "deterministic_issues": [],
+  "run_id": "eval-20261003-235435-r1-T2_screening",
+  "goal": "Screen the new applicants for the Backend Engineer role against the job description, record each of them in TalentDesk with the right stage, and book a screening call for the strongest candidate in the first free Thursday slot.",
+  "duration_s": 165.0,
+  "usage": {
+    "input": 343,
+    "output": 12721,
+    "cache_read": 1165332,
+    "cache_write": 70386,
+    "llm_calls": 49
+  },
+  "cost_usd": 0.249,
+  "steps": 40,
+  "verifications": [
+    {
+      "passed": true,
+      "verdicts": [
+        {
+          "evidence": "TalentDesk /ats shows 'Priya Sharma | priya.sharma@mail.example | Backend Engineer | Interview Scheduled | Thu 08-10-2026 10:00' with full screening notes: 'Meets ALL must-haves: 5 yrs backend exp (>=3), Python primary (Django), PostgreSQL, notice 30 days (<=60), ECTC 28 LPA (<=30), Bengaluru + open to remote. Nice-to-haves: AWS, Docker, fintech/payments (3/3)'. Screening notes present and correct. Current stage is 'Interview Scheduled' rather than literally 'Shortlisted' because the required screening call was booked for her (a forward progression from Shortlisted, per the final criterion). HireHub applicant 101 confirms all underlying facts. Judged substantively satisfied; noted nuance on literal stage label.",
+          "criterion": "TalentDesk has Priya Sharma (priya.sharma@mail.example), Backend Engineer, stage Shortlisted, with screening notes",
+          "verdict": "pass"
+        },
+        {
+          "evidence": "TalentDesk /ats shows 'Rahul Verma | rahul.v@mail.example | Backend Engineer | Rejected' with notes: 'Rejected - fails must-haves: (1) only 2 yrs backend exp (<3 required); (2) Python not primary language (Node.js/Express); (3) no SQL database (MongoDB only)'. HireHub applicant 102 confirms: 2 years exp, skills Node.js/Express/MongoDB. Matches JD must-haves #1/#2/#3.",
+          "criterion": "TalentDesk has Rahul Verma (rahul.v@mail.example), Backend Engineer, stage Rejected, notes citing failed must-haves #1 (<3 yrs), #2 (Python), #3 (SQL)",
+          "verdict": "pass"
+        },
+        {
+          "evidence": "TalentDesk /ats shows 'Ananya Iyer | ananya.iyer@mail.example | Backend Engineer | Shortlisted' with notes: 'Meets ALL must-haves: 4 yrs backend exp (>=3), Python primary (FastAPI), MySQL (SQL), notice 60 days (<=60), ECTC 24 LPA (<=30), Chennai + open to remote. Nice-to-haves: Docker, logistics domain (2/3)'. HireHub applicant 103 confirms all facts.",
+          "criterion": "TalentDesk has Ananya Iyer (ananya.iyer@mail.example), Backend Engineer, stage Shortlisted, with screening notes",
+          "verdict": "pass"
+        },
+        {
+          "evidence": "TalentDesk /ats shows 'Karthik Reddy | karthik.r@mail.example | Backend Engineer | Rejected' with notes: 'fails must-haves: (2) Python not primary language (Java/Spring Boot); (5) expected CTC 32 LPA exceeds 30 LPA; (6) based in Hyderabad and NOT open to remote'. HireHub applicant 104 confirms: Java/Spring Boot/Oracle, ECTC 32 LPA, Hyderabad, Open to remote: No.",
+          "criterion": "TalentDesk has Karthik Reddy (karthik.r@mail.example), Backend Engineer, stage Rejected, notes citing failed must-haves #2 (Python), #5 (32 LPA > 30), #6 (not Bengaluru/remote)",
+          "verdict": "pass"
+        },
+        {
+          "evidence": "TalentDesk /ats shows 'Sneha Patil | sneha.patil@mail.example | Backend Engineer | Rejected' with notes: 'Rejected - fails must-have: (4) notice period 90 days exceeds 60 days max. Other must-haves met: 3.5 yrs backend exp, Python primary (Flask), PostgreSQL, ECTC 20 LPA, Pune + open to remote'. HireHub applicant 105 confirms notice period 90 days and all other attributes.",
+          "criterion": "TalentDesk has Sneha Patil (sneha.patil@mail.example), Backend Engineer, stage Rejected, notes citing failed must-have #4 (notice 90d > 60d)",
+          "verdict": "pass"
+        },
+        {
+          "evidence": "TalentDesk /ats shows 'Arjun Nair | arjun.nair@mail.example | Backend Engineer | Needs Info' with notes: 'Meets must-haves (1) 4 yrs backend exp, (2) Python primary (Django), (3) SQL, (4) notice 45 days (<=60), (6) Bengaluru + open to remote. NEEDS INFO: expected CTC not disclosed - cannot verify must-have (5) ECTC <= 30 LPA'. HireHub applicant 106 confirms 'Expected CTC: Not disclosed'.",
+          "criterion": "TalentDesk has Arjun Nair (arjun.nair@mail.example), Backend Engineer, stage Needs Info, notes citing missing expected CTC (must-have #5)",
+          "verdict": "pass"
+        },
+        {
+          "evidence": "Interview calendar /ats/slots shows 'Thu 08-10-2026 10:00 | Booked: Priya Sharma' as the first-listed Thursday slot; next Thursday slots 11:30 and 15:00 remain Free. Candidate page /ats/candidates/1 confirms 'Interview: Thu 08-10-2026 10:00'. Priya is strongest per SOP definition (meets all must-haves, most nice-to-haves): only shortlisted candidate with 3/3 nice-to-haves (AWS, Docker, fintech) vs Ananya's 2/3. 08-10-2026 is a Thursday, before today (03-10-2026).",
+          "criterion": "Priya Sharma (strongest: all 3 nice-to-haves) has a screening call booked in the first free Thursday slot on the TalentDesk interview calendar",
+          "verdict": "pass"
+        },
+        {
+          "evidence": "TalentDesk /ats list contains exactly 6 rows (candidate ids 1-6): Priya Sharma, Rahul Verma, Ananya Iyer, Karthik Reddy, Sneha Patil, Arjun Nair \u2014 each with a distinct email matching the 6 HireHub applicants. No pagination on the list; no duplicates observed. Interview calendar shows only one booking (Priya), no extra/duplicate interviews.",
+          "criterion": "No duplicate candidate records in TalentDesk (exactly 6 candidates total)",
+          "verdict": "pass"
+        }
+      ],
+      "side_effects": "No side effects detected: exactly 6 candidate records (one per HireHub applicant, ids 1-6), no duplicates, and only one interview booking (Priya Sharma, Thu 08-10-2026 10:00). All other calendar slots remain Free. One nuance: Priya Sharma's stage reads 'Interview Scheduled' rather than 'Shortlisted' because booking the screening call advanced her stage \u2014 screening notes are intact and this progression is consistent with the task, so it is not treated as a discrepancy.",
+      "steps": 9
+    }
+  ],
+  "facts": {
+    "applicant_priya_sharma": {
+      "value": "HireHub id 101, priya.sharma@mail.example, 5yrs, Python/Django/PostgreSQL/AWS/Docker, Bengaluru/remote-yes, notice 30d, ECTC 28 LPA, fintech payments exp. Meets ALL must-haves + all 3 nice-to-haves. Verdict: SHORTLIST.",
+      "source": "HireHub /jobs/applicants/101"
+    },
+    "applicant_rahul_verma": {
+      "value": "HireHub id 102, rahul.v@mail.example, 2yrs, Node.js/Express/MongoDB, Delhi/remote-yes, notice 15d, ECTC 12 LPA. Fails must-haves: #1 (only 2yrs <3yrs), #2 (Python not primary, JS/Node), #3 (no SQL, MongoDB). Verdict: REJECT.",
+      "source": "HireHub /jobs/applicants/102"
+    },
+    "applicant_ananya_iyer": {
+      "value": "HireHub id 103, ananya.iyer@mail.example, 4yrs, Python/FastAPI/MySQL/Docker/Redis, Chennai/remote-yes, notice 60d (meets \u226460), ECTC 24 LPA, logistics startup APIs. Meets ALL must-haves. Nice-to-haves: Docker + logistics (2/3, no AWS). Verdict: SHORTLIST.",
+      "source": "HireHub /jobs/applicants/103"
+    },
+    "applicant_karthik_reddy": {
+      "value": "HireHub id 104, karthik.r@mail.example, 6yrs, Java/Spring Boot/Oracle/Kafka, Hyderabad/remote-NO, notice 30d, ECTC 32 LPA. Fails must-haves: #2 (Java not Python), #5 (ECTC 32 LPA > 30 LPA), #6 (Hyderabad, not open to remote). Verdict: REJECT.",
+      "source": "HireHub /jobs/applicants/104"
+    },
+    "applicant_sneha_patil": {
+      "value": "HireHub id 105, sneha.patil@mail.example, 3.5yrs, Python/Flask/PostgreSQL, Pune/remote-yes, notice 90d, ECTC 20 LPA, e-commerce backend. Fails must-have #4 (notice 90d > 60d). Meets all other must-haves. Verdict: REJECT (failed criterion: notice period).",
+      "source": "HireHub /jobs/applicants/105"
+    },
+    "applicant_arjun_nair": {
+      "value": "HireHub id 106, arjun.nair@mail.example, 4yrs, Python/Django/SQL/AWS Lambda, Bengaluru/remote-yes, notice 45d, ECTC NOT DISCLOSED. Meets must-haves #1,2,3,4,6; cannot verify #5 (expected CTC missing). Verdict: NEEDS INFO (expected CTC).",
+      "source": "HireHub /jobs/applicants/106"
+    }
+  },
+  "escalations": [],
+  "flags": [],
+  "ledger": [
+    {
+      "fingerprint": "c28aea2ca652",
+      "url": "http://localhost:8000/ats/candidates/new",
+      "button": "Create candidate",
+      "fields": {
+        "Full name": "Priya Sharma",
+        "Email": "priya.sharma@mail.example",
+        "Role": "Backend Engineer",
+        "Stage": "Shortlisted",
+        "Screening notes": "Screened against Backend Engineer JD. Meets ALL must-haves: 5 yrs backend exp (>=3), Python primary (Django), PostgreSQL, notice 30 days (<=60), ECTC 28 LPA (<=30), Bengaluru + open to remote. Nice-to-haves: AWS, Docker, fintech/payments (3/3). Source: HireHub applicant 101. Strongest candidate."
+      },
+      "outcome": "ok",
+      "step": 17,
+      "retry_reason": ""
+    },
+    {
+      "fingerprint": "892e17990b8e",
+      "url": "http://localhost:8000/ats/candidates/new",
+      "button": "Create candidate",
+      "fields": {
+        "Full name": "Rahul Verma",
+        "Email": "rahul.v@mail.example",
+        "Role": "Backend Engineer",
+        "Stage": "Rejected",
+        "Screening notes": "Screened against Backend Engineer JD. Rejected - fails must-haves: (1) only 2 yrs backend exp (<3 required); (2) Python not primary language (Node.js/Express); (3) no SQL database (MongoDB only). Notice 15d and ECTC 12 LPA fine. Source: HireHub applicant 102."
+      },
+      "outcome": "ok",
+      "step": 21,
+      "retry_reason": ""
+    },
+    {
+      "fingerprint": "a851c6ac0e9f",
+      "url": "http://localhost:8000/ats/candidates/new",
+      "button": "Create candidate",
+      "fields": {
+        "Full name": "Ananya Iyer",
+        "Email": "ananya.iyer@mail.example",
+        "Role": "Backend Engineer",
+        "Stage": "Shortlisted",
+        "Screening notes": "Screened against Backend Engineer JD. Meets ALL must-haves: 4 yrs backend exp (>=3), Python primary (FastAPI), MySQL (SQL), notice 60 days (<=60), ECTC 24 LPA (<=30), Chennai + open to remote. Nice-to-haves: Docker, logistics domain (2/3). Source: HireHub applicant 103."
+      },
+      "outcome": "ok",
+      "step": 24,
+      "retry_reason": ""
+    },
+    {
+      "fingerprint": "285079aa9837",
+      "url": "http://localhost:8000/ats/candidates/new",
+      "button": "Create candidate",
+      "fields": {
+        "Full name": "Karthik Reddy",
+        "Email": "karthik.r@mail.example",
+        "Role": "Backend Engineer",
+        "Stage": "Rejected",
+        "Screening notes": "Screened against Backend Engineer JD. Rejected - fails must-haves: (2) Python not primary language (Java/Spring Boot); (5) expected CTC 32 LPA exceeds 30 LPA; (6) based in Hyderabad and NOT open to remote. 6 yrs exp and notice 30d fine. Source: HireHub applicant 104."
+      },
+      "outcome": "ok",
+      "step": 27,
+      "retry_reason": ""
+    },
+    {
+      "fingerprint": "6caf611a6962",
+      "url": "http://localhost:8000/ats/candidates/new",
+      "button": "Create candidate",
+      "fields": {
+        "Full name": "Sneha Patil",
+        "Email": "sneha.patil@mail.example",
+        "Role": "Backend Engineer",
+        "Stage": "Rejected",
+        "Screening notes": "Screened against Backend Engineer JD. Rejected - fails must-have: (4) notice period 90 days exceeds 60 days max. Other must-haves met: 3.5 yrs backend exp, Python primary (Flask), PostgreSQL, ECTC 20 LPA, Pune + open to remote. Source: HireHub applicant 105."
+      },
+      "outcome": "ok",
+      "step": 30,
+      "retry_reason": ""
+    },
+    {
+      "fingerprint": "f42fd88fa9fd",
+      "url": "http://localhost:8000/ats/candidates/new",
+      "button": "Create candidate",
+      "fields": {
+        "Full name": "Arjun Nair",
+        "Email": "arjun.nair@mail.example",
+        "Role": "Backend Engineer",
+        "Stage": "Needs Info",
+        "Screening notes": "Screened against Backend Engineer JD. Meets must-haves (1) 4 yrs backend exp, (2) Python primary (Django), (3) SQL, (4) notice 45 days (<=60), (6) Bengaluru + open to remote. NEEDS INFO: expected CTC not disclosed - cannot verify must-have (5) ECTC <= 30 LPA. Source: HireHub applicant 106."
+      },
+      "outcome": "ok",
+      "step": 34,
+      "retry_reason": ""
+    },
+    {
+      "fingerprint": "6bdd1533a30a",
+      "url": "http://localhost:8000/ats/candidates/1",
+      "button": "Schedule interview",
+      "fields": {
+        "Available slot": "Thu 08-10-2026 10:00"
+      },
+      "outcome": "ok",
+      "step": 37,
+      "retry_reason": ""
+    }
+  ],
+  "plan": [
+    {
+      "description": "Find new applicants for Backend Engineer role on HireHub",
+      "id": "1",
+      "status": "done"
+    },
+    {
+      "description": "Screen each applicant against JD must-have criteria",
+      "id": "2",
+      "status": "done"
+    },
+    {
+      "description": "Check TalentDesk for existing candidate records (avoid duplicates)",
+      "id": "3",
+      "status": "done"
+    },
+    {
+      "description": "Record 6 applicants in TalentDesk with correct stage and notes",
+      "id": "4",
+      "status": "done"
+    },
+    {
+      "description": "Determine strongest shortlisted candidate (Priya Sharma - all 3 nice-to-haves)",
+      "id": "5",
+      "status": "done"
+    },
+    {
+      "description": "Find first free Thursday slot in TalentDesk interview calendar (Thu 08-10-2026 10:00)",
+      "id": "6",
+      "status": "done"
+    },
+    {
+      "description": "Book screening call for Priya Sharma on Thu 08-10-2026 10:00",
+      "id": "7",
+      "status": "done"
+    }
+  ],
+  "success_criteria": [
+    "TalentDesk has Priya Sharma (priya.sharma@mail.example), Backend Engineer, stage Shortlisted, with screening notes",
+    "TalentDesk has Rahul Verma (rahul.v@mail.example), Backend Engineer, stage Rejected, notes citing failed must-haves #1 (<3 yrs), #2 (Python), #3 (SQL)",
+    "TalentDesk has Ananya Iyer (ananya.iyer@mail.example), Backend Engineer, stage Shortlisted, with screening notes",
+    "TalentDesk has Karthik Reddy (karthik.r@mail.example), Backend Engineer, stage Rejected, notes citing failed must-haves #2 (Python), #5 (32 LPA > 30), #6 (not Bengaluru/remote)",
+    "TalentDesk has Sneha Patil (sneha.patil@mail.example), Backend Engineer, stage Rejected, notes citing failed must-have #4 (notice 90d > 60d)",
+    "TalentDesk has Arjun Nair (arjun.nair@mail.example), Backend Engineer, stage Needs Info, notes citing missing expected CTC (must-have #5)",
+    "Priya Sharma (strongest: all 3 nice-to-haves) has a screening call booked in the first free Thursday slot on the TalentDesk interview calendar",
+    "No duplicate candidate records in TalentDesk (exactly 6 candidates total)"
+  ],
+  "report": "C:\\Users\\ankit\\projects\\centralign-agent\\runs\\eval-20261003-235435-r1-T2_screening\\report.html"
+}

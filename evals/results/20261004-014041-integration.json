@@ -1,0 +1,161 @@
+{
+  "meta": {
+    "tag": "integration",
+    "timestamp": "20261004-014041",
+    "provider": "bedrock_converse",
+    "model": "us.moonshotai.kimi-k3",
+    "commit": "uncommitted",
+    "repeat": 1,
+    "only": "T1_base,F3_silent_drop,F6_over_limit_approved",
+    "max_cost": null,
+    "stopped_early": ""
+  },
+  "summary": {
+    "k": 1,
+    "runs": 3,
+    "passed": 1,
+    "pass_rate": 0.333,
+    "scenarios": 3,
+    "scenarios_pass_k": 1,
+    "false_success": 0,
+    "false_success_rate": 0.0,
+    "blocked_runs": 0,
+    "correctly_blocked": 0,
+    "escalation_precision": null,
+    "crashed": 0,
+    "total_cost": 0.6151,
+    "cost_per_verified": 0.6151,
+    "total_seconds": 579.1,
+    "mean_human_touches": 0.667,
+    "per_scenario": [
+      {
+        "id": "T1_base",
+        "about": "Assignment's example task, clean environment",
+        "expected": [
+          "success"
+        ],
+        "runs": 1,
+        "passes": 1,
+        "pass_rate": 1.0,
+        "pass_k": true,
+        "mean_steps": 17.0,
+        "mean_cost": 0.151,
+        "mean_seconds": 182.7,
+        "false_success": 0,
+        "mean_human_touches": 0.0,
+        "statuses": {
+          "success": 1
+        },
+        "notes": []
+      },
+      {
+        "id": "F3_silent_drop",
+        "about": "ERP says \"Saved!\" but drops the record -> only verification catches it",
+        "expected": [
+          "success"
+        ],
+        "runs": 1,
+        "passes": 0,
+        "pass_rate": 0.0,
+        "pass_k": false,
+        "mean_steps": 26.0,
+        "mean_cost": 0.243,
+        "mean_seconds": 190.0,
+        "false_success": 0,
+        "mean_human_touches": 0.0,
+        "statuses": {
+          "unverified": 1
+        },
+        "notes": []
+      },
+      {
+        "id": "F6_over_limit_approved",
+        "about": "INR 1,85,000 bill exceeds approval limit -> policy gate asks, human approves",
+        "expected": [
+          "success"
+        ],
+        "runs": 1,
+        "passes": 0,
+        "pass_rate": 0.0,
+        "pass_k": false,
+        "mean_steps": 25.0,
+        "mean_cost": 0.221,
+        "mean_seconds": 206.4,
+        "false_success": 0,
+        "mean_human_touches": 2.0,
+        "statuses": {
+          "unverified": 1
+        },
+        "notes": []
+      }
+    ]
+  },
+  "rows": [
+    {
+      "id": "T1_base",
+      "about": "Assignment's example task, clean environment",
+      "rep": 1,
+      "expected": [
+        "success"
+      ],
+      "passed": true,
+      "status": "success",
+      "verified": true,
+      "oracle_failures": [],
+      "false_success": false,
+      "steps": 17,
+      "cost_usd": 0.1509,
+      "approvals": 0,
+      "questions": 0,
+      "flags": 1,
+      "verify_rounds": 3,
+      "report": "C:\\Users\\ankit\\projects\\centralign-agent\\runs\\eval-20261004-014041-r1-T1_base\\report.html",
+      "summary": "Task complete. Latest Globex invoice GX-1042 (dated 01-10-2026, received 01-10-2026 from billing@globex.example, sender domain verified) was found in AcmeMail. From the PDF: total payable INR 48,250.00 incl. GST, due date 15-10-2026. Entered into Ledgerly ERP as Bill #4 after confirming no duplicate existed; the live bills list at /erp/bills now shows exactly one GX-1042 entry: #4 Globex Ltd | GX-1042 | 01-10-2026 | 48,250.00 | 15-10-2026 | Open (verified twice, most recently at step 15). No FM ",
+      "seconds": 182.7
+    },
+    {
+      "id": "F3_silent_drop",
+      "about": "ERP says \"Saved!\" but drops the record -> only verification catches it",
+      "rep": 1,
+      "expected": [
+        "success"
+      ],
+      "passed": false,
+      "status": "unverified",
+      "verified": false,
+      "oracle_failures": [],
+      "false_success": false,
+      "steps": 26,
+      "cost_usd": 0.2428,
+      "approvals": 0,
+      "questions": 0,
+      "flags": 0,
+      "verify_rounds": 3,
+      "report": "C:\\Users\\ankit\\projects\\centralign-agent\\runs\\eval-20261004-014041-r1-F3_silent_drop\\report.html",
+      "summary": "Done \u2014 Globex's latest invoice is entered in the accounts system (Ledgerly ERP) and verified live.\n\nThe latest invoice is GX-1042 (invoice date 01-10-2026), newer than GX-0987 (01-09-2026). Details were taken from the PDF attachment (source of truth). It is recorded under the vendor of record \"Globex Ltd\" as Bill #4: Invoice No GX-1042, Invoice Date 01-10-2026, Amount INR 48,250.00 (TOTAL PAYABLE incl. GST = subtotal 40,889.83 + GST 7,360.17), Due Date 15-10-2026, Status Open. No duplicate exist",
+      "seconds": 190.0
+    },
+    {
+      "id": "F6_over_limit_approved",
+      "about": "INR 1,85,000 bill exceeds approval limit -> policy gate asks, human approves",
+      "rep": 1,
+      "expected": [
+        "success"
+      ],
+      "passed": false,
+      "status": "unverified",
+      "verified": false,
+      "oracle_failures": [],
+      "false_success": false,
+      "steps": 25,
+      "cost_usd": 0.2214,
+      "approvals": 2,
+      "questions": 0,
+      "flags": 0,
+      "verify_rounds": 3,
+      "report": "C:\\Users\\ankit\\projects\\centralign-agent\\runs\\eval-20261004-014041-r1-F6_over_limit_approved\\report.html",
+      "summary": "Task complete. The latest Globex invoice \u2014 GX-1042, received in AcmeMail from billing@globex.example (the official vendor domain per vendors.md), PDF attachment used as source of truth \u2014 was entered into Ledgerly ERP as Bill #4. Extracted values from the PDF: Invoice No GX-1042, invoice date 01-10-2026, TOTAL PAYABLE INR 1,85,000.00 (incl. GST), payment due 15-10-2026 (consistent with Net 14 from invoice date). Per sop_accounts_payable.md: vendor of record verified as 'Globex Ltd'; duplicate che",
+      "seconds": 206.4
+    }
+  ]
+}

@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workforce · Acme Workforce</title>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('wf-theme')||'dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/runs-ui/theme.css">
+<style>
+  .roster { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .emp { display: flex; flex-direction: column; gap: 14px; cursor: pointer; transition: border-color .15s, transform .15s; padding: 20px; }
+  .emp:hover { border-color: var(--border-strong); }
+  .emp .top { display: flex; align-items: center; gap: 13px; }
+  .emp .nm { font-size: 16px; font-weight: 650; letter-spacing: -.01em; color: var(--text); }
+  .emp .nm:hover { text-decoration: none; }
+  .emp .ti { font-size: 12.5px; color: var(--muted); }
+  .live { display: flex; gap: 10px; align-items: flex-start; padding: 11px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border); min-height: 64px; }
+  .live .state { font-size: 11.5px; font-weight: 600; display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+  .live .state.working { color: var(--ok-text); } .live .state.waiting { color: var(--warn-text); } .live .state.idle { color: var(--muted); }
+  .live .sent { font-size: 13px; color: var(--text-2); line-height: 1.45; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .emp.waiting .live { border-color: color-mix(in srgb, var(--warn) 35%, var(--border)); background: var(--warn-soft); }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .stats div { background: var(--surface); padding: 9px 11px; }
+  .stats b { display: block; font-size: 17px; font-weight: 650; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+  .stats b .muted { font-size: 11px; font-weight: 500; }
+  .stats span { font-size: 11px; color: var(--muted); }
+  .emp .foot { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: auto; }
+  .review { margin-left: auto; font-weight: 600; font-size: 13px; color: var(--warn-text); display: inline-flex; align-items: center; gap: 5px; }
+  .ghost { border: 1.5px dashed var(--border-strong); background: transparent; box-shadow: none; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; gap: 10px; color: var(--muted); min-height: 280px; }
+  .ghost .plus { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; border: 1.5px dashed var(--border-strong); color: var(--text-2); }
+  .ghost b { color: var(--text); font-size: 15px; }
+
+  .two { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  .assign { display: flex; flex-direction: column; gap: 14px; padding: 20px; }
+  .assign .seg { align-self: flex-start; }
+  .route { font-size: 12.5px; color: var(--muted); display: flex; align-items: center; gap: 8px; min-height: 22px; }
+  .presets .chip { max-width: 100%; }
+  details.stress { border-top: 1px solid var(--border); padding-top: 12px; }
+  details.stress summary { cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-2); list-style: none; display: flex; align-items: center; gap: 8px; }
+  details.stress summary::-webkit-details-marker { display: none; }
+  details.stress[open] summary svg.cv { transform: rotate(180deg); }
+  details.stress .inner { display: flex; flex-direction: column; gap: 12px; padding-top: 12px; }
+  .assign-foot { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+  .guard { display: flex; flex-direction: column; gap: 0; padding: 6px 0; }
+  .guard h2 { padding: 12px 20px 6px; }
+  .g { display: grid; grid-template-columns: 32px 1fr; gap: 12px; padding: 11px 20px; }
+  .g .ic { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-text); }
+  .g b { font-size: 13px; display: block; } .g p { font-size: 12.5px; color: var(--muted); }
+  .pay { margin: 8px 20px 14px; padding: 12px 14px; border-radius: 10px; background: var(--ok-soft); color: var(--ok-text); font-size: 12.5px; }
+  .pay b { font-size: 15px; font-variant-numeric: tabular-nums; }
+
+  @media (max-width: 1100px) { .roster { grid-template-columns: repeat(2, minmax(0, 1fr)); } .two { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) { .roster { grid-template-columns: 1fr; } .hide-sm { display: none; } .ghost { min-height: 150px; } table.tbl td.task { min-width: 200px; } }
+</style>
+</head>
+<body>
+<header id="nav"></header>
+<main class="page">
+  <div class="pagehead">
+    <div><h1>Your AI workforce</h1><p class="sub tnum" id="subline">Loading your team…</p></div>
+  </div>
+
+  <section class="roster" id="roster" aria-label="AI employees"></section>
+
+  <div class="two">
+    <section class="card assign" aria-labelledby="assignTitle">
+      <div class="card-head" style="margin:0"><div><h2 id="assignTitle">Assign work</h2><p class="small muted">Describe the outcome. Your employee plans, operates the company systems, checks in when a decision is yours, and proves the result.</p></div></div>
+      <div class="seg" id="seg" role="tablist" aria-label="Who should do this"></div>
+      <label class="sr" for="task">Task</label>
+      <textarea id="task" rows="3" placeholder="e.g. Find the latest invoice from Globex, extract the amount and due date, enter it into our accounts system, and tell me once it is done."></textarea>
+      <div class="route" id="route"></div>
+      <div class="chips presets" id="presets"></div>
+      <details class="stress">
+        <summary>Stress test: inject real-world mess</summary>
+        <div class="inner">
+          <div class="chips" id="chaos"><span class="muted small">Loading…</span></div>
+          <div class="row wrap" style="gap:20px">
+            <label class="switch"><input type="checkbox" id="headed"><span></span>Show the browser</label>
+            <label class="switch"><input type="checkbox" id="reset" checked><span></span>Reset sandbox data</label>
+          </div>
+        </div>
+      </details>
+      <div class="assign-foot"><span class="small faint">Ctrl + Enter to assign</span><span class="grow"></span><button id="assignBtn" class="btn primary">Assign</button></div>
+    </section>
+
+    <section class="card guard" aria-label="How your workforce is governed">
+      <h2>How your workforce is governed</h2>
+      <div class="g"><span class="ic" id="gi1"></span><div><b>Permission layer</b><p id="gp1">Policy rules are enforced in code on every consequential click, outside the model.</p></div></div>
+      <div class="g"><span class="ic" id="gi2"></span><div><b>Human escalation</b><p>Approvals above limits and missing information come to your Inbox, with an audit note.</p></div></div>
+      <div class="g"><span class="ic" id="gi3"></span><div><b>Company memory</b><p>SOPs, vendor and job data, plus rules employees learned and you approved.</p></div></div>
+      <div class="g"><span class="ic" id="gi4"></span><div><b>Observability</b><p>Every action is traced; an independent read-only verifier proves the result.</p></div></div>
+      <div class="pay" id="pay">Pay only for work actually completed.</div>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="card-head"><h2>Recent work</h2><a class="small" href="/employees/all">Full audit log →</a></div>
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead><tr><th>Employee</th><th>Task</th><th>Outcome</th><th class="num hide-sm">Human touches</th><th class="num">Cost</th><th class="hide-sm">When</th></tr></thead>
+        <tbody id="rows"><tr><td colspan="6" class="empty">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script src="/runs-ui/shared.js"></script>
+<script>
+const {$, $$, esc, short} = WF;
+WF.nav('workforce');
+document.querySelector('details.stress summary').innerHTML = `${WF.icon('bolt', 15)} Stress test: inject real-world mess <span class="muted small" id="chaosN"></span><svg class="cv" width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8l4 4 4-4"/></svg>`;
+['shield', 'hand', 'book', 'log'].forEach((n, i) => $('#gi' + (i + 1)).innerHTML = WF.icon(n, 17));
+
+const SYS = {mail: 'AcmeMail', erp: 'Ledgerly ERP', jobs: 'HireHub', ats: 'TalentDesk'};
+const PRESETS = {
+  diya: [['Globex invoice into the ERP', 'Find the latest invoice from Globex, extract the amount and due date, enter it into our accounts system, and tell me once it is done.'],
+         ['Initech bank-detail change', 'Initech emailed us their new bank details. Please update their vendor record in the accounts system.']],
+  kabir: [['Screen Backend Engineer applicants', 'Screen the new applicants for the Backend Engineer role against the job description, record each of them in TalentDesk with the right stage, and book a screening call for the strongest candidate in the first free Thursday slot.'],
+          ['Who applied to the new opening?', 'Check my mail and tell me who has applied for our new job opening.']],
+};
+const CHAOS_LABEL = {flaky_submit: 'Server error on save', ghost_save: 'Times out but actually saves', silent_drop: 'Fake “Saved!” that drops the record',
+  relabel: 'Form fields relabelled', duplicates: 'Revised invoice arrives', over_threshold: 'Amount above approval limit', missing_due_date: 'Due date missing',
+  injection: 'Prompt injection in an email', already_in_ats: 'Candidate already in ATS', slot_conflict: 'Interview slot taken'};
+let ROLES = [], pick = 'auto';
+
+function card(r) {
+  const t = r.trust || {}, st = r.status;
+  const avg = t.tasks ? (t.cost_usd || 0) / t.tasks : null;
+  const stateLbl = st === 'working' ? 'Working' : st === 'waiting' ? 'Waiting on you' : 'Idle';
+  let sent;
+  if (r.active_run) sent = esc(r.active_run.sentence || 'Getting started on a new task');
+  else if (r.last_run) { const o = {verified: 'Verified', escalated: 'Escalated to a human', unverified: 'Not verified', failed: 'Failed', abandoned: 'Abandoned'}[r.last_run.outcome] || r.last_run.outcome;
+    sent = `Last: ${esc(short(r.last_run.goal, 54))} · <b style="color:var(--text)">${esc(o)}</b> · ${WF.ago(r.last_run.started)}`; }
+  else sent = 'No work assigned yet.';
+  const auto = r.autonomy === 'standard' ? '<span class="badge accent" title="Autonomy level">Standard</span>' : '<span class="badge outline" title="Autonomy level">Supervised</span>';
+  const review = st === 'waiting' ? `<a class="review" href="/inbox" onclick="event.stopPropagation()">Review request ${WF.icon('arrow', 13, 2)}</a>` : '';
+  return `<article class="card emp ${st}" tabindex="0" role="link" aria-label="${esc(r.name)}, ${esc(r.title)}, ${stateLbl}" data-href="/employees/${esc(r.id)}">
+    <div class="top">${WF.avatar(r, 'l', st)}<div class="grow" style="min-width:0"><a class="nm" href="/employees/${esc(r.id)}">${esc(r.name)}</a><div class="ti">${esc(r.title)}</div></div>${auto}</div>
+    <div class="live"><div style="min-width:0"><div class="state ${st}"><i class="dot ${st !== 'idle' ? 'pulse' : ''}"></i>${stateLbl}</div><div class="sent">${sent}</div></div></div>
+    <div class="stats"><div><b>${t.verified ?? 0}</b><span>Verified tasks</span></div><div><b>${t.escalated ?? 0}</b><span>Escalations</span></div>
+      <div><b>${avg == null ? '—' : WF.usd(avg)} <span class="muted">${avg == null ? '' : WF.inr(avg)}</span></b><span>Avg cost / task</span></div></div>
+    <div class="foot">${(r.systems || []).map(s => `<span class="tag">${esc(SYS[s] || s)}</span>`).join('')}${review}</div></article>`;
+}
+
+function renderRoster() {
+  $('#roster').innerHTML = ROLES.map(card).join('') + `<div class="card ghost" aria-label="Hire an AI employee (roadmap)"><span class="plus">${WF.icon('plus', 20, 1.8)}</span>
+    <b>Hire an AI employee</b><span class="small">Define a role, permissions and checkpoints · roadmap</span></div>`;
+  $$('.emp').forEach(c => { c.onclick = e => { if (!e.target.closest('a')) location = c.dataset.href; };
+    c.onkeydown = e => { if (e.key === 'Enter' && e.target === c) location = c.dataset.href; }; });
+  const prog = ROLES.reduce((a, r) => a + (r.in_progress || 0), 0), need = ROLES.reduce((a, r) => a + (r.needs_you || 0), 0);
+  $('#subline').innerHTML = `${ROLES.length} employees · ${prog} task${prog === 1 ? '' : 's'} in progress · ${need ? `<a href="/inbox" style="color:var(--warn-text);font-weight:600">${need} need${need === 1 ? 's' : ''} you</a>` : '0 need you'}`;
+}
+
+function renderSeg() {
+  const opts = [['auto', 'Auto-route', null], ...ROLES.map(r => [r.id, r.name, r])];
+  $('#seg').innerHTML = opts.map(([id, l, r]) => `<button role="tab" aria-selected="${pick === id}" class="${pick === id ? 'on' : ''}" data-id="${id}">${r ? WF.avatar(r, 's') : WF.icon('spark', 14)}${esc(l)}</button>`).join('');
+  $$('#seg button').forEach(b => b.onclick = () => { pick = b.dataset.id; renderSeg(); renderPresets(); route(); });
+  const r = ROLES.find(x => x.id === pick);
+  $('#assignBtn').innerHTML = `${r ? 'Assign to ' + esc(r.name) : 'Assign'} ${WF.icon('arrow', 14, 2)}`;
+}
+function renderPresets() {
+  const ids = pick === 'auto' ? Object.keys(PRESETS) : [pick];
+  $('#presets').innerHTML = ids.flatMap(id => (PRESETS[id] || []).map(([l, t]) => { const r = ROLES.find(x => x.id === id);
+    return `<button class="chip" data-task="${esc(t)}" title="${esc(t)}">${r && pick === 'auto' ? WF.avatar(r, 's') : ''}${esc(l)}</button>`; })).join('');
+  $$('#presets [data-task]').forEach(b => b.onclick = () => { $('#task').value = b.dataset.task; route(); $('#task').focus(); });
+}
+function guess(t) { for (const r of ROLES) { try { if (r.match && new RegExp(r.match, 'i').test(t)) return r; } catch (e) {} } return null; }
+function route() {
+  const t = $('#task').value.trim(), r = ROLES.find(x => x.id === pick);
+  if (r) { $('#route').innerHTML = `${WF.avatar(r, 's')}<span><b style="color:var(--text)">${esc(r.name)}</b> will do this with ${r.autonomy === 'standard' ? 'standard autonomy' : 'supervision on every consequential action'}.</span>`; return; }
+  const g = t && guess(t);
+  $('#route').innerHTML = !t ? `${WF.icon('spark', 14)}<span>Auto-route picks the right employee from the task.</span>`
+    : g ? `${WF.avatar(g, 's')}<span>Will be routed to <b style="color:var(--text)">${esc(g.name)}</b> (${esc(g.title)})</span>` : `${WF.icon('question', 14)}<span>No obvious owner; the worker will decide.</span>`;
+}
+
+async function loadRoles() { ROLES = await WF.roles(true); renderRoster(); if (!$('#seg').children.length) { renderSeg(); renderPresets(); route(); }
+  const tot = ROLES.reduce((a, r) => a + (r.trust?.verified || 0), 0);
+  const spent = ROLES.reduce((a, r) => a + (r.trust?.cost_usd || 0), 0);
+  $('#pay').innerHTML = `<div>Pay only for work actually completed</div><b>${tot}</b> verified tasks · <b>${WF.usd(spent)}</b> <span>${WF.inr(spent)}</span> in model spend`; }
+
+async function loadRuns() {
+  const runs = await WF.json('/api/runs').catch(() => []);
+  const map = Object.fromEntries(ROLES.map(r => [r.id, r]));
+  const rows = runs.slice(0, 14);
+  $('#rows').innerHTML = rows.length ? rows.map(r => { const ro = map[r.role] || {name: r.role_name || 'Unassigned', avatar_hue: 220};
+    return `<tr class="link" tabindex="0" onclick="location='/runs/${esc(r.id)}'" onkeydown="if(event.key==='Enter')location='/runs/${esc(r.id)}'">
+      <td><span class="who">${WF.avatar(ro, 's')}<b>${esc(ro.name)}</b></span></td>
+      <td class="task"><div>${esc(r.goal)}</div><span class="mono faint">${esc(r.id)}</span></td>
+      <td>${WF.outcome(r.outcome)}</td><td class="num hide-sm">${r.human_touches || '<span class="faint">0</span>'}</td>
+      <td class="num">${WF.usd(r.cost_usd)}</td><td class="muted hide-sm tnum nw">${WF.ago(r.started)}</td></tr>`; }).join('')
+    : '<tr><td colspan="6" class="empty">No work yet. Assign your first task above.</td></tr>';
+}
+
+async function loadChaos() {
+  try { const flags = await WF.json('/__admin/chaos');
+    $('#chaos').innerHTML = Object.entries(flags).map(([k, d]) => `<button class="chip toggle" aria-pressed="false" data-flag="${esc(k)}" title="${esc(d)}">${esc(CHAOS_LABEL[k] || k.replace(/_/g, ' '))}</button>`).join('');
+    $$('#chaos .toggle').forEach(b => b.onclick = () => { b.classList.toggle('on'); b.setAttribute('aria-pressed', b.classList.contains('on'));
+      const n = $$('#chaos .on').length; $('#chaosN').textContent = n ? `· ${n} selected` : ''; });
+  } catch { $('#chaos').innerHTML = '<span class="muted small">Sandbox admin not reachable.</span>'; }
+}
+
+async function assign() {
+  const task = $('#task').value.trim();
+  if (!task) { $('#task').focus(); $('#task').classList.add('shake'); setTimeout(() => $('#task').classList.remove('shake'), 400); return; }
+  const btn = $('#assignBtn'); btn.disabled = true; btn.textContent = 'Assigning…';
+  const chaos = $$('#chaos .on').map(b => b.dataset.flag);
+  const body = {task, chaos, headed: $('#headed').checked, reset: $('#reset').checked};
+  if (pick !== 'auto') body.role = pick;
+  try { const {run_id} = await WF.post('/api/runs/start', body); location = '/runs/' + run_id; }
+  catch (e) { btn.disabled = false; renderSeg(); }
+}
+$('#assignBtn').onclick = assign;
+$('#task').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) assign(); });
+$('#task').addEventListener('input', route);
+
+(async () => { await loadRoles(); loadRuns(); loadChaos();
+  setInterval(async () => { await loadRoles(); loadRuns(); }, 4000); })();
+</script>
+</body>
+</html>

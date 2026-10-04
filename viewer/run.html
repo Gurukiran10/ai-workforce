@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Task {{run_id}} · Acme Workforce</title>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('wf-theme')||'dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/runs-ui/theme.css">
+<style>
+  .crumbs { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .crumbs a { color: var(--muted); } .crumbs a:hover { color: var(--text); }
+  .head { display: flex; gap: 16px; align-items: flex-start; }
+  .head .who-l { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .head .who-l b { color: var(--text); font-weight: 600; }
+  .goal { font-size: 19px; font-weight: 600; letter-spacing: -.015em; line-height: 1.4; margin-top: 4px; }
+  .metaline { margin-top: 12px; font: 12.5px var(--mono); color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 0; }
+  .metaline span + span::before { content: "\00b7"; margin: 0 10px; color: var(--faint); }
+  .metaline b { color: var(--text-2); font-weight: 500; }
+
+  /* stepper */
+  .loop { display: grid; grid-template-columns: repeat(7, 1fr); padding: 16px 12px; }
+  .phase { display: flex; flex-direction: column; align-items: center; gap: 7px; position: relative; text-align: center; }
+  .phase::before { content: ""; position: absolute; top: 9px; left: -50%; width: 100%; height: 2px; background: var(--border); }
+  .phase:first-child::before { display: none; }
+  .phase.done::before, .phase.active::before { background: var(--accent); }
+  .phase .ic { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; z-index: 1; background: var(--surface); border: 2px solid var(--border-strong); color: #fff; transition: all .25s; }
+  .phase.done .ic { background: var(--accent-strong); border-color: var(--accent-strong); }
+  .phase.active .ic { border-color: var(--accent); box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 18%, transparent); }
+  .phase.active .ic::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .phase.active.err .ic { border-color: var(--warn); box-shadow: 0 0 0 5px color-mix(in srgb, var(--warn) 18%, transparent); } .phase.active.err .ic::after { background: var(--warn); }
+  .phase b { font-size: 12px; font-weight: 600; color: var(--text-2); } .phase.idle b { color: var(--faint); font-weight: 500; }
+  .phase.active b { color: var(--text); }
+
+  .grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+  .col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+
+  /* receipt */
+  .receipt { padding: 0; overflow: hidden; border-color: color-mix(in srgb, var(--ok) 35%, var(--border)); }
+  .receipt.amber { border-color: color-mix(in srgb, var(--warn) 40%, var(--border)); } .receipt.err { border-color: color-mix(in srgb, var(--err) 40%, var(--border)); }
+  .rc-top { display: flex; gap: 16px; padding: 20px 22px; align-items: flex-start; }
+  .rc-ic { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--ok-soft); color: var(--ok-text); }
+  .amber .rc-ic { background: var(--warn-soft); color: var(--warn-text); } .err .rc-ic { background: var(--err-soft); color: var(--err-text); }
+  .rc-top h2 { font-size: 18px; letter-spacing: -.01em; }
+  .rc-top .sum { color: var(--text-2); margin-top: 6px; line-height: 1.55; }
+  .rc-crit { list-style: none; margin: 0; padding: 0 22px 16px 82px; display: flex; flex-direction: column; gap: 7px; }
+  .rc-crit li { display: grid; grid-template-columns: 18px 1fr; gap: 9px; font-size: 13px; color: var(--text-2); opacity: 0; animation: tick .35s ease-out forwards; }
+  .rc-crit li svg { margin-top: 2px; } .rc-crit li.pass svg { color: var(--ok-text); } .rc-crit li.fail svg { color: var(--err-text); } .rc-crit li.unknown svg { color: var(--warn-text); }
+  @keyframes tick { from { opacity: 0; transform: translateX(-4px); } to { opacity: 1; transform: none; } }
+  .rc-foot { display: flex; align-items: center; gap: 10px; padding: 12px 22px; border-top: 1px solid var(--border); background: var(--surface-2); flex-wrap: wrap; }
+  .rc-foot .mono { color: var(--muted); font-size: 12px; }
+
+  /* browser view */
+  .browser { padding: 0; overflow: hidden; }
+  .chrome { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  .lights { display: flex; gap: 6px; } .lights i { width: 9px; height: 9px; border-radius: 50%; background: var(--border-strong); }
+  .url { flex: 1; font: 12px var(--mono); color: var(--text-2); background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: 4px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .shot { display: block; width: 100%; max-height: 420px; object-fit: cover; object-position: top; background: #fff; min-height: 200px; }
+  .shot-empty { display: grid; place-items: center; height: 220px; color: var(--muted); }
+
+  /* activity feed */
+  .feed { max-height: 620px; overflow-y: auto; margin: 0 -20px -18px; padding: 0 20px 12px; }
+  .ev { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 11px; padding: 9px 0; border-bottom: 1px solid var(--border); align-items: start; animation: in .25s ease-out; }
+  .ev:last-child { border-bottom: 0; }
+  .ev .i { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: var(--surface-2); color: var(--muted); }
+  .ev .t { font-weight: 500; color: var(--text); word-break: break-word; font-size: 13.5px; } .ev .d { font-size: 12.5px; color: var(--muted); margin-top: 2px; word-break: break-word; }
+  .ev .s { font: 11px var(--mono); color: var(--faint); white-space: nowrap; padding-top: 4px; }
+  .ev.think .t { font-weight: 400; color: var(--text-2); }
+  .ev.err .i { background: var(--err-soft); color: var(--err-text); } .ev.err .t { color: var(--err-text); }
+  .ev.policy .i, .ev.approval .i { background: var(--accent-soft); color: var(--accent-text); } .ev.guard .i, .ev.human .i { background: var(--warn-soft); color: var(--warn-text); }
+  .ev.verify .i { background: var(--ok-soft); color: var(--ok-text); } .ev.learn .i { background: var(--accent-soft); color: var(--accent-text); }
+  code { font: 12px var(--mono); background: var(--surface-2); padding: 1px 5px; border-radius: 5px; color: var(--text-2); }
+  .filters { display: flex; gap: 4px; } .filters .chip { padding: 3px 10px; font-size: 12px; } .filters .chip.on { background: var(--accent-soft); color: var(--accent-text); border-color: transparent; }
+
+  /* side panels */
+  .plan { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .plan li { display: grid; grid-template-columns: 18px 1fr; gap: 10px; font-size: 13px; color: var(--text-2); }
+  .plan .st { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border-strong); display: grid; place-items: center; margin-top: 2px; color: #fff; }
+  .plan li.done { color: var(--muted); } .plan li.done .st { background: var(--ok); border-color: var(--ok); }
+  .plan li.doing { color: var(--text); font-weight: 500; } .plan li.doing .st { border-color: var(--accent); box-shadow: inset 0 0 0 2px var(--surface), inset 0 0 0 8px var(--accent); }
+  .plan li.blocked .st { background: var(--warn); border-color: var(--warn); }
+  .crit { display: flex; flex-direction: column; gap: 12px; }
+  .crit .c { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; font-size: 13px; align-items: start; }
+  .crit .ev2 { grid-column: 2; font-size: 12px; color: var(--muted); border-left: 2px solid var(--border); padding-left: 8px; }
+  .facts { display: flex; flex-direction: column; gap: 10px; }
+  .fact { font-size: 13px; } .fact b { display: block; font-weight: 600; color: var(--text); font-size: 12px; font-family: var(--mono); }
+  .fact .v { color: var(--text-2); } .fact .src { font-size: 11.5px; color: var(--muted); }
+  .safety { display: flex; flex-direction: column; gap: 9px; font-size: 13px; }
+  .safety .row { display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start; }
+  .safety .row svg { margin-top: 2px; color: var(--accent-text); }
+  .empty-s { color: var(--muted); font-size: 13px; } .plan li.empty-s { display: block; }
+  #pending { display: flex; flex-direction: column; gap: 14px; } #pending:empty { display: none; }
+  @media (max-width: 700px) { .head { flex-wrap: wrap; } .head > .grow { flex-basis: 100%; order: 3; } .head .av.xl { width: 44px; height: 44px; font-size: 16px; }
+    #report { margin-left: auto; } .goal { font-size: 17px; } .card-head { flex-wrap: wrap; } .filters { flex-wrap: wrap; } }
+  @media (max-width: 1050px) { .grid { grid-template-columns: 1fr; } .loop { grid-template-columns: repeat(4, 1fr); row-gap: 16px; } .phase::before { display: none; } .rc-crit { padding-left: 22px; } }
+</style>
+</head>
+<body>
+<header id="nav"></header>
+<main class="page">
+  <div class="crumbs"><a href="/runs">Workforce</a><span>/</span><a id="crumbEmp" href="/employees/all">Audit log</a><span>/</span><span class="mono">{{run_id}}</span></div>
+  <section class="card">
+    <div class="head">
+      <span id="hav"><span class="av xl" style="--h:220">·</span></span>
+      <div class="grow" style="min-width:0">
+        <div class="who-l"><b id="hname">AI employee</b><span id="htitle"></span><span>· Task</span><span id="status" class="badge info"><i class="dot pulse"></i>Starting…</span></div>
+        <div class="goal" id="goal">Waiting for the employee to start…</div>
+        <div class="metaline" id="metaline"></div>
+      </div>
+      <a class="btn" id="report" href="/runs/{{run_id}}/file/report.html" target="_blank" rel="noopener" style="display:none">Evidence report ↗</a>
+    </div>
+  </section>
+
+  <div id="pending" aria-live="polite"></div>
+  <div id="result"></div>
+
+  <section class="card loop" id="loop" aria-label="Work loop"></section>
+
+  <div class="grid">
+    <div class="col">
+      <section class="card browser">
+        <div class="chrome"><div class="lights"><i></i><i></i><i></i></div><div class="url" id="url">about:blank</div><span class="badge neutral" id="shotlabel">What the employee sees</span></div>
+        <div id="shotbox"><div class="shot-empty">No page yet</div></div>
+      </section>
+      <section class="card">
+        <div class="card-head"><h2>Activity</h2>
+          <div class="filters" role="group" aria-label="Filter activity"><button class="chip on" data-f="actions">Actions</button><button class="chip" data-f="safety">Checkpoints</button><button class="chip" data-f="reasoning">Reasoning</button><button class="chip" data-f="all">All</button></div>
+        </div>
+        <div class="feed" id="feed"></div>
+      </section>
+    </div>
+    <div class="col">
+      <section class="card"><div class="card-head"><h2>Plan</h2><span class="muted small tnum" id="planprog"></span></div><ul class="plan" id="plan"><li class="empty-s">No plan yet.</li></ul></section>
+      <section class="card"><div class="card-head"><h2>Success criteria</h2><span id="verifybadge"></span></div><div class="crit" id="crit"><span class="empty-s">Defined during planning; checked by an independent read-only verifier.</span></div><p class="small faint" id="vmodel" style="margin-top:12px"></p></section>
+      <section class="card"><div class="card-head"><h2>Human checkpoints &amp; safety</h2></div><div class="safety" id="safety"><span class="empty-s">No approvals, questions or flags yet.</span></div></section>
+      <section class="card"><div class="card-head"><h2>Facts learned</h2><span class="muted small">with sources</span></div><div class="facts" id="facts"><span class="empty-s">Nothing recorded yet.</span></div></section>
+    </div>
+  </div>
+</main>
+
+<script src="/runs-ui/shared.js"></script>
+<script>
+const RUN = "{{run_id}}";
+const {$, $$, esc, short, plain} = WF;
+WF.nav('workforce');
+const I = (n, s = 14) => WF.icon(n, s, 1.9);
+const PHASES = [['understand', 'Understand'], ['plan', 'Plan'], ['execute', 'Execute'], ['observe', 'Observe'], ['adapt', 'Adapt'], ['verify', 'Verify'], ['complete', 'Report']];
+const S = { t0: null, steps: 0, tools: 0, humans: 0, approvals: 0, facts: {}, phase: 'understand', reached: new Set(), errPhase: false, verdicts: null,
+            criteria: [], safety: [], filter: 'actions', model: '', vmodel: '', lastShot: null, done: false, role: null, goal: '', result: null };
+let since = 0, ROLES = [];
+
+function setPhase(p, err = false) {
+  S.reached.add(p); S.phase = p; S.errPhase = err;
+  const idx = PHASES.findIndex(x => x[0] === p);
+  $('#loop').innerHTML = PHASES.map(([k, l], i) => {
+    const cls = S.done ? 'done' : i < idx ? 'done' : i === idx ? ('active' + (err ? ' err' : '')) : (S.reached.has(k) ? 'done' : 'idle');
+    return `<div class="phase ${cls}"${i === idx && !S.done ? ' aria-current="step"' : ''}><div class="ic">${cls === 'done' ? WF.icon('check', 11, 3) : ''}</div><b>${l}</b></div>`;
+  }).join('');
+}
+
+function setRole(id, name, title) {
+  let r = ROLES.find(x => x.id === id);
+  if (!r && !id && S.goal) r = ROLES.find(x => { try { return x.match && new RegExp(x.match, 'i').test(S.goal); } catch (e) { return false; } });
+  r = r || (name ? {id, name, title, avatar_hue: 220} : null);
+  if (!r) return;
+  S.role = r;
+  $('#hav').innerHTML = WF.avatar(r, 'xl');
+  $('#hname').textContent = r.name; $('#htitle').textContent = r.title || title || '';
+  $('#crumbEmp').textContent = r.name; $('#crumbEmp').href = '/employees/' + encodeURIComponent(r.id || 'all');
+  document.title = `${r.name} · Task · Acme Workforce`;
+}
+
+const TOOL = {
+  search_memory: a => ['book', 'Looked up company memory', `“${esc(a.query)}”`, 'understand'],
+  update_plan: a => ['log', 'Updated the plan', `${(a.steps||[]).length} steps${a.success_criteria ? ` · ${a.success_criteria.length} success criteria` : ''}`, 'plan'],
+  open_url: a => ['ext', 'Opened a page', `<code>${esc(String(a.url).replace(/^https?:\/\/[^/]+/, ''))}</code>`, 'execute'],
+  click: a => ['arrow', `Clicked element [${esc(a.element_id)}]`, a.retry_reason ? `Deliberate retry: ${esc(a.retry_reason)}` : '', 'execute'],
+  type_text: a => ['log', `Typed into [${esc(a.element_id)}]`, `“${esc(short(a.text, 90))}”${a.submit ? ' + Enter' : ''}`, 'execute'],
+  select_option: a => ['check', `Selected “${esc(a.option)}”`, `in element [${esc(a.element_id)}]`, 'execute'],
+  read_page: () => ['inbox', 'Re-read the page', '', 'observe'],
+  scroll: a => ['chev', `Scrolled ${esc(a.direction)}`, '', 'execute'],
+  go_back: () => ['arrow', 'Went back', '', 'execute'],
+  list_files: a => ['grid', 'Listed files', esc(a.directory || '.'), 'observe'],
+  read_file: a => ['book', 'Read a file', `<code>${esc(a.path)}</code>`, 'observe'],
+  write_file: a => ['log', 'Wrote a file', `<code>${esc(a.path)}</code>`, 'execute'],
+  remember: a => ['brain', `Noted “${esc(a.key)}”`, esc(short(a.value, 140)), 'observe'],
+  ask_human: a => ['question', 'Asked you a question', esc(a.question), 'adapt'],
+  request_approval: a => ['lock', 'Requested approval', esc(a.action), 'adapt'],
+  flag_concern: a => ['hand', 'Flagged a concern', esc(short(a.concern, 160)), 'adapt'],
+  finish: a => ['check', `Reported “${esc(a.status)}”`, esc(short(plain(a.summary), 220)), 'complete'],
+};
+
+function feed(icon, title, detail, cls, group, step) {
+  const d = document.createElement('div');
+  d.className = `ev ${cls}`; d.dataset.group = group;
+  d.innerHTML = `<div class="i">${I(icon)}</div><div><div class="t">${title}</div>${detail ? `<div class="d">${detail}</div>` : ''}</div><div class="s">${step ? 'step ' + step : ''}</div>`;
+  if (S.filter !== 'all' && S.filter !== group) d.style.display = 'none';
+  const f = $('#feed'); const atBottom = f.scrollHeight - f.scrollTop - f.clientHeight < 60;
+  f.appendChild(d); if (atBottom) f.scrollTop = f.scrollHeight;
+}
+function safety(icon, html) { S.safety.push(`<div class="row">${I(icon)}<div>${html}</div></div>`); $('#safety').innerHTML = S.safety.join(''); }
+
+function renderPlan(steps) {
+  const n = steps.length, done = steps.filter(s => s.status === 'done').length;
+  $('#planprog').textContent = n ? `${done}/${n} done` : '';
+  $('#plan').innerHTML = steps.map(s => `<li class="${esc(s.status)}"><span class="st">${s.status === 'done' ? WF.icon('check', 9, 3.2) : ''}</span><span>${esc(s.description)}</span></li>`).join('');
+}
+function vfor(c, i) { const vlist = S.verdicts || []; return vlist.find(v => v.criterion === c) || vlist[i]; }
+function renderCriteria() {
+  if (!S.criteria.length) return;
+  $('#crit').innerHTML = S.criteria.map((c, i) => {
+    const v = vfor(c, i);
+    const b = !v ? '<span class="badge neutral">pending</span>' : v.verdict === 'pass' ? '<span class="badge ok">pass</span>' : v.verdict === 'fail' ? '<span class="badge err">fail</span>' : '<span class="badge warn">unknown</span>';
+    const sop = v && v.source === 'sop' ? ' <span class="tag" title="Checked against a company SOP rule">SOP check</span>' : '';
+    return `<div class="c">${b}<div>${esc(c)}${sop}</div>${v ? `<div class="ev2">${esc(short(v.evidence, 260))}</div>` : ''}</div>`;
+  }).join('');
+  if (S.vmodel) $('#vmodel').textContent = `Verifier model: ${S.vmodel} · fresh browser · read-only`;
+}
+function renderFacts() {
+  const f = Object.values(S.facts);
+  if (f.length) $('#facts').innerHTML = f.map(x => `<div class="fact"><b>${esc(x.key)}</b><span class="v">${esc(short(x.value, 220))}</span><div class="src">source: ${esc(x.source)}</div></div>`).join('');
+}
+function metaline(result) {
+  const el = S.t0 ? ((result?.duration_s) ?? (Date.now()/1000 - S.t0)) : 0;
+  const cost = result ? `${WF.usd(result.cost_usd ?? 0)} ${WF.inr(result.cost_usd ?? 0)}` : 'cost on completion';
+  $('#metaline').innerHTML = [`<b>${result?.steps ?? S.steps}</b> steps`, `<b>${S.tools}</b> actions`, `<b>${WF.dur(el)}</b> ${result ? 'total' : 'elapsed'}`,
+    result ? `<b>${cost}</b>` : cost, `<b>${S.humans}</b> human touch${S.humans === 1 ? '' : 'es'}`, S.model ? esc(S.model) : ''].filter(Boolean).map(x => `<span>${x}</span>`).join('');
+}
+
+function handle(ev) {
+  const k = ev.kind;
+  if (k === 'run_start') { S.t0 = ev.ts; S.model = ev.model; S.goal = ev.goal || ''; $('#goal').textContent = ev.goal; setRole(ev.role, ev.role_name, ev.role_title); setPhase('understand'); return; }
+  if (k === 'thought') { feed('spark', esc(short(plain(ev.text), 420)), '', 'think', 'reasoning', ev.step); return; }
+  if (k === 'tool_call') {
+    if (ev.step) S.steps = Math.max(S.steps, ev.step);
+    if (String(ev.tool).startsWith('verifier.')) { const t = ev.tool.slice(9); const m = (TOOL[t] || (() => ['shield', t, '', 'verify']))(ev.input || {});
+      feed('shield', 'Verifier: ' + m[1].charAt(0).toLowerCase() + m[1].slice(1), m[2], 'verify', 'safety'); setPhase('verify'); return; }
+    S.tools++; const m = (TOOL[ev.tool] || (() => ['bolt', esc(ev.tool), '', 'execute']))(ev.input || {});
+    feed(m[0], m[1], m[2], '', ev.tool === 'finish' ? 'safety' : 'actions', ev.step);
+    if (!S.done) setPhase(m[3]); return; }
+  if (k === 'tool_result') { if (ev.is_error) { feed('x', 'Action failed: adapting', esc(short(ev.summary, 260)), 'err', 'actions'); setPhase('adapt', true); } return; }
+  if (k === 'observation') {
+    if (ev.url) $('#url').textContent = ev.url;
+    if (ev.screenshot) { const rel = ev.screenshot.replace(/\\/g, '/').split('/runs/').pop().split('/').slice(1).join('/');
+      if (rel !== S.lastShot) { S.lastShot = rel; $('#shotbox').innerHTML = `<a href="/runs/${RUN}/file/${rel}" target="_blank" rel="noopener"><img class="shot" alt="Screenshot of the page" src="/runs/${RUN}/file/${rel}"></a>`;
+        $('#shotlabel').textContent = rel.startsWith('verifier') ? 'Verifier view' : 'What the employee sees'; } }
+    if ((ev.http_errors || []).length) feed('x', 'Server error observed', `<code>${esc(ev.http_errors.join(', '))}</code>`, 'err', 'actions');
+    if ((ev.downloads || []).length) feed('chev', 'Downloaded a file', `<code>${esc(ev.downloads.join(', '))}</code>`, '', 'actions');
+    if (!S.done && S.phase === 'execute') setPhase('observe'); return; }
+  if (k === 'plan') { renderPlan(ev.steps || []); if ((ev.success_criteria || []).length) { S.criteria = ev.success_criteria; renderCriteria(); } if (!S.reached.has('plan')) setPhase('plan'); return; }
+  if (k === 'fact') { S.facts[ev.key] = ev; renderFacts(); return; }
+  if (k === 'policy') { const tone = ev.decision === 'allow' ? 'ok' : ev.decision === 'deny' ? 'err' : 'warn';
+    feed('lock', `Permission layer: <span class="badge ${tone}">${esc(String(ev.decision).replace('_', ' '))}</span> “${esc(ev.button)}”`, ev.rule ? `rule <code>${esc(ev.rule)}</code>` : 'no rule triggered', 'policy', 'safety');
+    if (ev.decision !== 'allow') safety('lock', `<b>${esc(String(ev.decision).replace('_', ' '))}</b> · ${esc(ev.button)} <span class="muted">(${esc(ev.rule)})</span>`); return; }
+  if (k === 'approval') { if (ev.status === 'requested') { S.humans++; feed('hand', 'Waiting for your approval', esc(ev.request?.why_needed || ev.request?.action || ''), 'approval', 'safety'); }
+    else { S.approvals++; const ok = ev.status === 'approved'; feed(ok ? 'check' : 'x', `Approval ${esc(ev.status)}`, esc(ev.note || ''), ok ? 'verify' : 'err', 'safety');
+      safety(ok ? 'check' : 'x', `Human <b>${esc(ev.status)}</b>${ev.note ? ': ' + esc(ev.note) : ''}`); } return; }
+  if (k === 'human') { if (ev.type === 'question') { S.humans++; feed('question', 'Asked you', esc(ev.question), 'human', 'safety'); safety('question', `<b>Asked:</b> ${esc(short(ev.question, 160))}`); }
+    else { feed('inbox', 'You answered', esc(ev.answer), 'human', 'safety'); safety('inbox', `<b>Answer:</b> ${esc(short(ev.answer, 160))}`); } return; }
+  if (k === 'learning') { const rule = ev.rule || ev.proposal?.rule || '';
+    feed('brain', `Proposed a new rule: “${esc(short(rule, 160))}”`, `${ev.status && ev.status !== 'proposed' ? esc(ev.status) + ' · ' : ''}<a href="/inbox">Review in Inbox →</a>`, 'learn', 'actions');
+    safety('brain', `<b>Wants to learn:</b> ${esc(short(rule, 160))} <a href="/inbox">Review</a>`); return; }
+  if (k === 'flag') { feed('hand', 'Flagged suspicious content', esc(short(ev.concern, 220)), 'err', 'safety'); safety('hand', `<b>Flagged:</b> ${esc(short(ev.concern, 200))}`); return; }
+  if (k === 'guard') { feed('shield', 'Runtime guard', esc(short(ev.message, 240)), 'guard', 'safety'); safety('shield', esc(short(ev.message, 180))); setPhase('adapt', true); return; }
+  if (k === 'action_ledger') { feed('log', `Change committed: “${esc(ev.button)}”`, `outcome <b>${esc(ev.outcome)}</b> · ledger <code>${esc(ev.fingerprint)}</code>`, ev.outcome === 'ok' ? 'verify' : 'err', 'actions'); return; }
+  if (k === 'verifier') {
+    if (ev.model) S.vmodel = ev.model;
+    if (ev.status === 'started') { feed('shield', 'Independent verification started', `${(ev.criteria || []).length} criteria · fresh browser · read-only${ev.model ? ' · ' + esc(ev.model) : ''}`, 'verify', 'safety'); setPhase('verify'); }
+    else if (ev.status === 'done' || ev.status === 'exhausted') { S.verdicts = ev.verdicts; renderCriteria();
+      feed(ev.passed ? 'check' : 'x', ev.passed ? 'Verifier confirmed every criterion' : 'Verifier found problems', '', ev.passed ? 'verify' : 'err', 'safety');
+      $('#verifybadge').innerHTML = ev.passed ? `<span class="badge ok">${WF.icon('check', 12, 2.4)}verified</span>` : '<span class="badge err">not yet</span>'; }
+    else if (ev.status === 'sent_back') { feed('arrow', 'Sent back to fix', esc(short((ev.issues || []).map(i => i.criterion).concat(ev.problems || []).join(' · '), 260)), 'err', 'safety'); setPhase('adapt', true); }
+    return; }
+  if (k === 'error') { feed('x', 'Error', esc(short(ev.message, 260)), 'err', 'safety'); return; }
+}
+
+let shownPending = '', holdUntil = 0;
+function renderPending(list) {
+  $('#pending').innerHTML = list.map(p => WF.decisionCard({...p, type: p.kind === 'approval' ? 'approval' : 'question', run_id: RUN, goal: S.goal}, S.role)).join('');
+  WF.bindDecisions($('#pending'), () => { holdUntil = Date.now() + 2500; });
+}
+
+function renderResult(r) {
+  S.done = true; S.result = r; setPhase('complete');
+  if (r.role && !S.role) setRole(r.role, r.role_name);
+  const v = r.verified, st = r.status;
+  const kind = v ? 'ok' : st === 'blocked' ? 'amber' : 'err';
+  const label = v ? 'Verified complete' : st === 'blocked' ? 'Stopped for a human — by design' : st === 'unverified' ? 'Not verified' : `Ended: ${st}`;
+  $('#status').className = 'badge ' + (v ? 'ok' : st === 'blocked' ? 'amber' : 'err');
+  $('#status').innerHTML = v ? `${WF.icon('check', 12, 2.4)}Verified` : st === 'blocked' ? 'Escalated' : esc(label);
+  $('#report').style.display = '';
+  const crit = S.criteria.map((c, i) => { const vv = vfor(c, i); const s = vv ? vv.verdict : (v ? 'pass' : 'unknown');
+    return `<li class="${esc(s)}" style="animation-delay:${180 + i * 140}ms">${WF.icon(s === 'pass' ? 'check' : s === 'fail' ? 'x' : 'question', 15, 2.3)}<span>${esc(c)}${vv && vv.source === 'sop' ? ' <span class="tag">SOP check</span>' : ''}</span></li>`; }).join('');
+  const reason = st === 'blocked' ? `<p class="small muted" style="margin-top:8px">${esc(r.role_name || S.role?.name || 'The employee')} stopped deliberately instead of guessing or acting outside policy. Nothing irreversible was done without a human.</p>` : '';
+  const foot = [`${r.steps ?? S.steps} steps`, `${WF.usd(r.cost_usd ?? 0)} ${WF.inr(r.cost_usd ?? 0)}`, `${S.approvals} approval${S.approvals === 1 ? '' : 's'}`,
+    v ? `verified by ${S.vmodel || 'independent verifier'}` : ''].filter(Boolean).join(' · ');
+  $('#result').innerHTML = `<section class="card receipt ${kind === 'ok' ? '' : kind}" aria-label="Receipt">
+    <div class="rc-top"><span class="rc-ic">${WF.icon(v ? 'check' : st === 'blocked' ? 'hand' : 'x', 22, 2.4)}</span>
+      <div class="grow"><h3 style="margin-bottom:4px">${v ? 'Receipt' : st === 'blocked' ? 'Escalation' : 'Result'}</h3><h2>${esc(label)}</h2><p class="sum">${esc(plain(r.summary))}</p>${reason}</div></div>
+    ${crit ? `<ul class="rc-crit">${crit}</ul>` : ''}
+    <div class="rc-foot"><span class="mono">${esc(foot)}</span><span class="grow"></span>
+      <a class="btn sm" href="/runs/${RUN}/file/report.html" target="_blank" rel="noopener">Open evidence report ↗</a>
+      <a class="btn sm primary" href="/runs">Assign another task</a></div></section>`;
+}
+
+$$('.filters .chip').forEach(b => b.onclick = () => {
+  $$('.filters .chip').forEach(x => x.classList.remove('on')); b.classList.add('on'); S.filter = b.dataset.f;
+  $$('#feed .ev').forEach(e => e.style.display = (S.filter === 'all' || e.dataset.group === S.filter) ? '' : 'none');
+});
+
+async function poll() {
+  try {
+    const r = await WF.json(`/runs/${RUN}/events?since=${since}`);
+    since = r.next; r.events.forEach(handle);
+    const key = r.pending.map(p => p.id).join(',');  // don't re-render (and wipe typed notes) unless requests changed
+    if (key !== shownPending && Date.now() > holdUntil) { shownPending = key; renderPending(r.pending); }
+    if (r.result) { $('#pending').innerHTML = ''; renderResult(r.result); metaline(r.result); return; }
+    if (!r.starting) { $('#status').className = 'badge ' + (r.pending.length ? 'warn' : 'info');
+      $('#status').innerHTML = `<i class="dot pulse"></i>${r.pending.length ? 'Waiting on you' : 'Working'}`; }
+    metaline(null);
+  } catch (e) { console.warn(e); }
+  setTimeout(poll, 1000);
+}
+(async () => { ROLES = await WF.roles(); setPhase('understand'); metaline(null); poll(); })();
+</script>
+</body>
+</html>
