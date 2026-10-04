@@ -1,7 +1,7 @@
 # Acme Workforce: AI employees that do the work, check in when a decision is yours, and prove the result
 
 [![CI](https://github.com/Gurukiran10/ai-workforce/actions/workflows/ci.yml/badge.svg)](https://github.com/Gurukiran10/ai-workforce/actions/workflows/ci.yml)
-**[▶ Watch the demo video](https://gurukiran10.github.io/ai-workforce/#video)** · **[Clickable showcase](https://gurukiran10.github.io/ai-workforce/)** · **[Open a real evidence report](https://gurukiran10.github.io/ai-workforce/runs/sample-invoice-over-limit-approval/report.html)**
+**[▶ Watch the demo video (YouTube)](https://youtu.be/hfl3IZnOA8M)** · **[Clickable showcase](https://gurukiran10.github.io/ai-workforce/)** · **[Open a real evidence report](https://gurukiran10.github.io/ai-workforce/runs/sample-invoice-over-limit-approval/report.html)**
 *(Hosted by GitHub Pages. The raw files are in the repo too: [video](docs/video/acme-workforce-demo.mp4) · [report source](runs/sample-invoice-over-limit-approval/report.html).)*
 
 *Submission for the CentrAlign AI Engineering Intern problem, "Autonomous AI Task Worker".*
